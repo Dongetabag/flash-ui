@@ -59,23 +59,29 @@ export default function ChatWidget({ assetId, buildData, onClose }: ChatWidgetPr
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [leadId, setLeadId] = useState<string | null>(null);
+    const [hasInitialized, setHasInitialized] = useState(false);
     const prevAssetIdRef = useRef<string | undefined>(undefined);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Initialize with welcome message when opened
+    const initializeChat = (withBuildData?: typeof buildData) => {
+        const welcomeMessage: ChatMessage = {
+            role: 'assistant',
+            content: withBuildData?.styleName 
+                ? `Hi! I'm your AISim build assistant. I see you're interested in building "${withBuildData.styleName}". How can I help you today?\n\n• Build timeline and process\n• Pricing and payment options\n• Customization possibilities\n• Technical requirements`
+                : `Hi! I'm your AISim build assistant. I'm here to help you bring your design to life.\n\nWhat would you like to know? You can ask about:\n• Our build process\n• Pricing and timelines\n• Customization options`,
+            timestamp: new Date().toISOString()
+        };
+        setMessages([welcomeMessage]);
+        setHasInitialized(true);
+    };
 
     // Auto-open when assetId changes (Build This clicked)
     useEffect(() => {
         if (assetId && assetId !== prevAssetIdRef.current) {
             setIsOpen(true);
-            // Initialize with welcome message
-            const welcomeMessage: ChatMessage = {
-                role: 'assistant',
-                content: buildData?.styleName 
-                    ? `Hi! I'm your AISim build assistant. I see you're interested in building "${buildData.styleName}". How can I help you today? You can ask me about:\n\n• Build timeline and process\n• Pricing and payment options\n• Customization possibilities\n• Technical requirements\n• Or anything else about your project!`
-                    : `Hi! I'm your AISim build assistant. I'm here to help you bring your design to life. What would you like to know about building your project?`,
-                timestamp: new Date().toISOString()
-            };
-            setMessages([welcomeMessage]);
+            initializeChat(buildData);
             // Track the build request
             trackInteraction({
                 assetId,
@@ -99,7 +105,7 @@ export default function ChatWidget({ assetId, buildData, onClose }: ChatWidgetPr
     }, [isOpen]);
 
     const handleSendMessage = async () => {
-        if (!inputValue.trim() || isLoading || !assetId) return;
+        if (!inputValue.trim() || isLoading) return;
 
         const userMessage: ChatMessage = {
             role: 'user',
@@ -181,15 +187,17 @@ When the user is ready to proceed, you can mention the checkout process.`;
 
             setMessages(prev => [...prev, assistantMessage]);
 
-            // Track interaction
-            trackInteraction({
-                assetId,
-                type: 'chat_message',
-                data: { 
-                    message: userMessage.content,
-                    responseLength: assistantMessage.content.length
-                }
-            }).catch(() => {});
+            // Track interaction (if we have an assetId)
+            if (assetId) {
+                trackInteraction({
+                    assetId,
+                    type: 'chat_message',
+                    data: { 
+                        message: userMessage.content,
+                        responseLength: assistantMessage.content.length
+                    }
+                }).catch(() => {});
+            }
 
         } catch (error) {
             console.error('AI chat error:', error);
@@ -239,8 +247,15 @@ When the user is ready to proceed, you can mention the checkout process.`;
     };
 
     const toggleWidget = () => {
-        setIsOpen(!isOpen);
-        if (!isOpen && assetId) {
+        const willOpen = !isOpen;
+        setIsOpen(willOpen);
+        
+        // Initialize chat with greeting when opening for the first time
+        if (willOpen && !hasInitialized) {
+            initializeChat(buildData);
+        }
+        
+        if (willOpen && assetId) {
             trackInteraction({
                 assetId,
                 type: 'click',
