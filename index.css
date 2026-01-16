@@ -1007,6 +1007,9 @@ html, body {
     /* Add top margin to empty-content to push content down from nav area */
     .empty-content {
         margin-top: 60px;
+        gap: 16px;
+        padding: 0 16px;
+        max-width: 100%;
     }
 
     /* Show inline input on mobile */
@@ -1089,11 +1092,7 @@ html, body {
     }
 
     /* Hero content adjustments - centered on mobile */
-    .empty-content {
-        gap: 16px;
-        padding: 0 16px;
-        max-width: 100%;
-    }
+    /* margin-top is set earlier in this breakpoint */
 
     .hero-tagline {
         font-size: clamp(1.3rem, 5vw, 2rem) !important;
