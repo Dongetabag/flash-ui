@@ -994,13 +994,14 @@ html, body {
         position: relative;
         min-height: 100vh;
         height: auto;
-        padding: 60px 16px 40px;
+        padding: 100px 16px 60px;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
+        -webkit-overflow-scrolling: touch;
     }
 
     /* Show inline input on mobile */
@@ -1122,7 +1123,7 @@ html, body {
 /* Mobile Large (768px and below) */
 @media (max-width: 768px) {
     .empty-state {
-        padding: 30px 16px 100px;
+        padding: 80px 16px 100px;
     }
 
     .empty-content {
@@ -1232,7 +1233,7 @@ html, body {
     }
 
     .empty-state {
-        padding: 30px 12px 110px;
+        padding: 70px 12px 110px;
     }
 
     .empty-content {
