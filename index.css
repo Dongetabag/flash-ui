@@ -108,7 +108,7 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
     text-align: center;
     color: var(--text-secondary);
     opacity: 1;
@@ -119,7 +119,7 @@ html, body {
                 visibility 0s linear 0.8s;
     z-index: 0;
     animation: ambientFadeIn 1.5s ease-out forwards;
-    padding: 60px 20px 140px;
+    padding: 40px 20px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
 }
@@ -983,11 +983,16 @@ html, body {
     }
 
     .empty-state {
-        position: relative;
+        position: fixed;
+        inset: 0;
         min-height: 100vh;
-        height: auto;
-        padding: 40px 16px 120px;
-        overflow: visible;
+        height: 100vh;
+        padding: 0 16px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
 
     .artifact-grid {
@@ -1038,15 +1043,16 @@ html, body {
         justify-content: center;
     }
 
-    /* Fixed input bar for mobile */
+    /* Centered input bar for mobile - vertically centered on screen */
     .floating-input-container {
         position: fixed;
-        bottom: 0;
+        top: 50%;
         left: 0;
         right: 0;
+        bottom: auto;
+        transform: translateY(-50%);
         padding: 12px 16px;
-        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
-        background: linear-gradient(to top, var(--app-bg) 0%, var(--app-bg) 70%, transparent 100%);
+        background: transparent;
         z-index: 100;
     }
 
@@ -1064,11 +1070,12 @@ html, body {
         transform: scale(0.16);
     }
 
-    /* Hero content adjustments */
+    /* Hero content adjustments - centered on mobile */
     .empty-content {
-        margin-top: 20px;
+        margin-top: 0;
         gap: 16px;
         padding: 0 16px;
+        max-width: 100%;
     }
 
     .hero-tagline {
@@ -1080,11 +1087,9 @@ html, body {
         padding: 0 10px;
     }
 
-    /* Overview section tablet */
+    /* Hide overview section on tablet/mobile for cleaner centered layout */
     .overview-section {
-        margin-top: 40px;
-        padding: 0 16px;
-        padding-bottom: 20px;
+        display: none;
     }
 
     .overview-cta {
