@@ -26,7 +26,7 @@ import {
     GridIcon,
     BuildIcon
 } from './components/Icons';
-import { trackAsset, trackInteraction, initTracking } from './src/lib/tracking';
+import { trackAsset, trackInteraction, initTracking, sendBuildRequest } from './src/lib/tracking';
 import ChatWidget from './components/ChatWidget';
 
 function App() {
@@ -230,22 +230,56 @@ Required JSON Output Format (stream ONE object per line):
       }
   };
 
-  const handleBuildThis = () => {
+  const handleBuildThis = async () => {
       const currentSession = sessions[currentSessionIndex];
-      if (currentSession && focusedArtifactIndex !== null) {
-          const artifact = currentSession.artifacts[focusedArtifactIndex];
-          const trackingAssetId = trackedAssetIds.get(artifact.id);
+      if (!currentSession || focusedArtifactIndex === null) return;
+      
+      const artifact = currentSession.artifacts[focusedArtifactIndex];
+      
+      // Check if artifact has code
+      if (!artifact.html || artifact.status !== 'complete') {
+          alert('Please wait for the design to finish generating before building.');
+          return;
+      }
+
+      const trackingAssetId = trackedAssetIds.get(artifact.id);
+      
+      if (!trackingAssetId) {
+          alert('Unable to process build request. Please try again.');
+          return;
+      }
+
+      try {
+          // Format code as markdown
+          const markdownCode = `# ${artifact.styleName}\n\n**Prompt:** ${currentSession.prompt}\n\n**Generated:** ${new Date().toISOString()}\n\n\`\`\`html\n${artifact.html}\n\`\`\``;
+          
+          // Send build request with code to backend
+          const buildResult = await sendBuildRequest({
+              assetId: trackingAssetId,
+              prompt: currentSession.prompt,
+              styleName: artifact.styleName,
+              htmlContent: artifact.html,
+              codeMarkdown: markdownCode
+          });
+
           // Track the build request interaction
-          if (trackingAssetId) {
-              trackInteraction({
-                  assetId: trackingAssetId,
-                  type: 'request_build',
-                  data: { styleName: artifact.styleName }
-              }).catch(() => {});
-          }
-          // Set the active asset for the chat widget
-          setActiveChatAssetId(trackingAssetId || null);
-          // The chat widget will auto-open when it detects an active asset
+          await trackInteraction({
+              assetId: trackingAssetId,
+              type: 'request_build',
+              data: { 
+                  styleName: artifact.styleName,
+                  prompt: currentSession.prompt,
+                  buildId: buildResult?.buildId
+              }
+          }).catch(() => {});
+
+          // Set the active asset for the chat widget (will open checkout)
+          setActiveChatAssetId(trackingAssetId);
+          
+      } catch (error) {
+          console.error('Error initiating build:', error);
+          // Still open the chat widget even if backend call fails
+          setActiveChatAssetId(trackingAssetId);
       }
   };
 

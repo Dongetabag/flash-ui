@@ -146,7 +146,7 @@ export async function trackInteraction(data: {
 
     // Create abort controller for timeout
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // Longer timeout for build requests
 
     await fetch(`${N8N_BASE_URL}/aisim/track-interaction`, {
       method: 'POST',
@@ -166,6 +166,51 @@ export async function trackInteraction(data: {
     clearTimeout(timeoutId);
   } catch (error) {
     // Silently fail - tracking should never break the app
+  }
+}
+
+/**
+ * Send build request with code to backend
+ */
+export async function sendBuildRequest(data: {
+  assetId: string;
+  prompt: string;
+  styleName: string;
+  htmlContent: string;
+  codeMarkdown: string;
+}): Promise<{ success: boolean; buildId?: string } | null> {
+  // If N8N URL is not configured, return null silently
+  if (!N8N_BASE_URL || N8N_BASE_URL.includes('your-n8n-server.com')) {
+    return null;
+  }
+
+  try {
+    const { sessionId: sid } = await initTracking();
+
+    // Create abort controller for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // Longer timeout for build requests
+
+    const response = await fetch(`${N8N_BASE_URL}/aisim/start-build`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        sessionId: sid,
+        ...data
+      }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      const result = await response.json();
+      return result;
+    }
+    return null;
+  } catch (error) {
+    // Silently fail - tracking should never break the app
+    return null;
   }
 }
 
