@@ -578,7 +578,7 @@ Return ONLY RAW HTML. No markdown fences.
                              </div>
                          </div>
 
-                         <p className="hero-hint">Type any UI idea and watch AI build it instantly</p>
+                         <p className="hero-hint">Type any UI idea and watch AISim build it instantly</p>
                      </div>
 
                      {/* Quick Overview Section - Description bars under input */}

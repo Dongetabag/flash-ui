@@ -890,15 +890,16 @@ html, body {
     transform: translateY(-2px);
 }
 .action-buttons .build-button {
-    background: linear-gradient(135deg, #ff9f0a 0%, #ff6b35 100%);
+    background: linear-gradient(135deg, #ff9f0a 0%, #ffd080 100%);
     border: none;
-    color: white;
+    color: var(--app-bg);
     font-weight: 600;
+    box-shadow: var(--glow-amber);
 }
 .action-buttons .build-button:hover {
-    background: linear-gradient(135deg, #ffb340 0%, #ff8855 100%);
+    background: linear-gradient(135deg, #ffb940 0%, #ff9f0a 100%);
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 159, 10, 0.4);
+    box-shadow: 0 6px 20px rgba(255, 159, 10, 0.5);
 }
 
 /* === Navigation Handles === */
