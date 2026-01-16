@@ -163,19 +163,19 @@ No names of artists.
 Instead, describe the *Physicality* and *Material Logic* of the UI.
 
 **CREATIVE GUIDANCE (Use these as EXAMPLES of how to describe style, but INVENT YOUR OWN):**
-1. Example: "Asymmetrical Primary Grid" (Heavy black strokes, rectilinear structure, flat primary pigments, high-contrast white space).
-2. Example: "Suspended Kinetic Mobile" (Delicate wire-thin connections, floating organic primary shapes, slow-motion balance, white-void background).
-3. Example: "Grainy Risograph Press" (Overprinted translucent inks, dithered grain textures, monochromatic color depth, raw paper substrate).
-4. Example: "Volumetric Spectral Fluid" (Generative morphing gradients, soft-focus diffusion, bioluminescent light sources, spectral chromatic aberration).
+1. Example: "AiSim Asymmetrical Primary Grid" (Heavy black strokes, rectilinear structure, flat primary pigments, high-contrast white space).
+2. Example: "AiSim Suspended Kinetic Mobile" (Delicate wire-thin connections, floating organic primary shapes, slow-motion balance, white-void background).
+3. Example: "AiSim Grainy Risograph Press" (Overprinted translucent inks, dithered grain textures, monochromatic color depth, raw paper substrate).
+4. Example: "AiSim Volumetric Spectral Fluid" (Generative morphing gradients, soft-focus diffusion, bioluminescent light sources, spectral chromatic aberration).
 
 **YOUR TASK:**
 For EACH variation:
-- Invent a unique design persona name based on a NEW physical metaphor.
+- Invent a unique design persona name based on a NEW physical metaphor. Each name MUST start with "AiSim ".
 - Rewrite the prompt to fully adopt that metaphor's visual language.
 - Generate high-fidelity HTML/CSS.
 
 Required JSON Output Format (stream ONE object per line):
-\`{ "name": "Persona Name", "html": "..." }\`
+\`{ "name": "AiSim Persona Name", "html": "..." }\`
         `.trim();
 
         const responseStream = await ai.models.generateContentStream({
@@ -186,7 +186,10 @@ Required JSON Output Format (stream ONE object per line):
 
         for await (const variation of parseJsonStream(responseStream)) {
             if (variation.name && variation.html) {
-                setComponentVariations(prev => [...prev, variation]);
+                // Ensure variation name starts with "AiSim "
+                const name = variation.name.trim();
+                const brandedName = name.startsWith('AiSim ') ? name : `AiSim ${name}`;
+                setComponentVariations(prev => [...prev, { ...variation, name: brandedName }]);
             }
         }
     } catch (e: any) {
@@ -230,7 +233,7 @@ Required JSON Output Format (stream ONE object per line):
 
     const placeholderArtifacts: Artifact[] = Array(3).fill(null).map((_, i) => ({
         id: `${sessionId}_${i}`,
-        styleName: 'Designing...',
+        styleName: 'AiSim Designing...',
         html: '',
         status: 'streaming',
     }));
@@ -258,13 +261,13 @@ Generate 3 distinct, highly evocative design directions for: "${trimmedInput}".
 Never use artist or brand names. Use physical and material metaphors.
 
 **CREATIVE EXAMPLES (Do not simply copy these, use them as a guide for tone):**
-- Example A: "Asymmetrical Rectilinear Blockwork" (Grid-heavy, primary pigments, thick structural strokes, Bauhaus-functionalism vibe).
-- Example B: "Grainy Risograph Layering" (Tactile paper texture, overprinted translucent inks, dithered gradients).
-- Example C: "Kinetic Wireframe Suspension" (Floating silhouettes, thin balancing lines, organic primary shapes).
-- Example D: "Spectral Prismatic Diffusion" (Glassmorphism, caustic refraction, soft-focus morphing gradients).
+- Example A: "AiSim Asymmetrical Rectilinear Blockwork" (Grid-heavy, primary pigments, thick structural strokes, Bauhaus-functionalism vibe).
+- Example B: "AiSim Grainy Risograph Layering" (Tactile paper texture, overprinted translucent inks, dithered gradients).
+- Example C: "AiSim Kinetic Wireframe Suspension" (Floating silhouettes, thin balancing lines, organic primary shapes).
+- Example D: "AiSim Spectral Prismatic Diffusion" (Glassmorphism, caustic refraction, soft-focus morphing gradients).
 
 **GOAL:**
-Return ONLY a raw JSON array of 3 *NEW*, creative names for these directions (e.g. ["Tactile Risograph Press", "Kinetic Silhouette Balance", "Primary Pigment Gridwork"]).
+Return ONLY a raw JSON array of 3 *NEW*, creative names for these directions. Each name MUST start with "AiSim " followed by the design direction (e.g. ["AiSim Tactile Risograph Press", "AiSim Kinetic Silhouette Balance", "AiSim Primary Pigment Gridwork"]).
         `.trim();
 
         const styleResponse = await ai.models.generateContent({
@@ -286,13 +289,22 @@ Return ONLY a raw JSON array of 3 *NEW*, creative names for these directions (e.
 
         if (!generatedStyles || generatedStyles.length < 3) {
             generatedStyles = [
-                "Primary Pigment Gridwork",
-                "Tactile Risograph Layering",
-                "Kinetic Silhouette Balance"
+                "AiSim Primary Pigment Gridwork",
+                "AiSim Tactile Risograph Layering",
+                "AiSim Kinetic Silhouette Balance"
             ];
         }
         
         generatedStyles = generatedStyles.slice(0, 3);
+        
+        // Ensure all style names start with "AiSim "
+        generatedStyles = generatedStyles.map(style => {
+            const trimmed = style.trim();
+            if (!trimmed.startsWith('AiSim ')) {
+                return `AiSim ${trimmed}`;
+            }
+            return trimmed;
+        });
 
         setSessions(prev => prev.map(s => {
             if (s.id !== sessionId) return s;
