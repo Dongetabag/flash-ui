@@ -1057,9 +1057,20 @@ html, body {
         max-width: 100%;
     }
 
-    /* Hide floating input on mobile when on empty state */
+    /* Hide floating input on mobile when on empty state, but show when artifacts exist */
     .floating-input-container {
         display: none;
+    }
+    
+    /* Show floating input when artifacts are present on tablet */
+    .stage-container:not(.mode-empty) .floating-input-container {
+        display: flex;
+        bottom: 20px;
+    }
+    
+    /* Adjust action bar when floating input is visible */
+    .stage-container:not(.mode-empty) .action-bar {
+        bottom: 160px; /* Extra space to clear input bar (60px height + 20px bottom + 80px gap) */
     }
 
     /* Fix scroll issues on mobile */
@@ -1122,12 +1133,13 @@ html, body {
     }
 
     .action-bar {
-        bottom: 100px;
+        bottom: 140px; /* Increased from 100px to clear input bar on tablet */
         width: 100%;
         gap: 8px;
         position: fixed;
         left: 0;
         right: 0;
+        z-index: 90;
     }
 
     .action-buttons {
@@ -1289,6 +1301,17 @@ html, body {
     .floating-input-container {
         padding: 10px 12px;
         padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        bottom: 20px;
+    }
+    
+    /* Show floating input when artifacts are present on mobile */
+    .stage-container:not(.mode-empty) .floating-input-container {
+        display: flex;
+    }
+    
+    /* Adjust action bar when floating input is visible on mobile */
+    .stage-container:not(.mode-empty) .action-bar {
+        bottom: 150px; /* Clear input bar (60px height + 20px bottom + 70px gap) */
     }
 
     .input-wrapper {
@@ -1450,6 +1473,17 @@ html, body {
     .floating-input-container {
         padding: 8px 10px;
         padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+        bottom: 15px;
+    }
+    
+    /* Show floating input when artifacts are present on small mobile */
+    .stage-container:not(.mode-empty) .floating-input-container {
+        display: flex;
+    }
+    
+    /* Adjust action bar when floating input is visible on small mobile */
+    .stage-container:not(.mode-empty) .action-bar {
+        bottom: 140px; /* Clear input bar (55px height + 15px bottom + 70px gap) */
     }
 
     .input-wrapper {
@@ -1481,7 +1515,7 @@ html, body {
 
     /* Action Bar Small Mobile */
     .action-bar {
-        bottom: 80px;
+        bottom: 120px; /* Increased from 80px to clear input bar */
         gap: 6px;
     }
 
@@ -1647,7 +1681,7 @@ html, body {
     }
 
     .action-bar {
-        bottom: max(80px, calc(env(safe-area-inset-bottom) + 60px));
+        bottom: max(140px, calc(env(safe-area-inset-bottom) + 120px));
     }
 }
 
