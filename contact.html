@@ -424,21 +424,33 @@
             };
 
             try {
-                // Here you would send to your backend
-                // For MVP, we'll just show success
-                console.log('Form data:', formData);
-                
-                // Simulate API call
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                btn.innerText = "SUBMITTED ✓";
-                form.reset();
-                
-                // Show success message
-                setTimeout(() => {
-                    alert('Thank you! We\'ll reach out within 24 hours to discuss your build.');
-                    btn.innerText = originalText;
-                }, 1000);
+                // Send to API endpoint (handles Slack + n8n)
+                const response = await fetch('/api/contact', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                const result = await response.json();
+                console.log('Form submitted:', result);
+
+                if (response.ok) {
+                    btn.innerText = "SUBMITTED ✓";
+                    form.reset();
+
+                    // Clear stored HTML content
+                    sessionStorage.removeItem('aisim_build_html');
+
+                    // Show success message
+                    setTimeout(() => {
+                        alert('Thank you! We\'ll reach out within 24 hours to discuss your build.');
+                        btn.innerText = originalText;
+                    }, 1000);
+                } else {
+                    throw new Error(result.error || 'Submission failed');
+                }
             } catch (error) {
                 console.error('Form submission error:', error);
                 btn.innerText = "ERROR // RETRY";
