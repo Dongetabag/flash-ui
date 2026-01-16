@@ -23,9 +23,11 @@ import {
     ArrowLeftIcon,
     ArrowRightIcon,
     ArrowUpIcon,
-    GridIcon
+    GridIcon,
+    BuildIcon
 } from './components/Icons';
 import { trackAsset, trackInteraction, initTracking } from './src/lib/tracking';
+import ChatWidget from './components/ChatWidget';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -46,6 +48,7 @@ function App() {
 
   const [componentVariations, setComponentVariations] = useState<ComponentVariation[]>([]);
   const [trackedAssetIds, setTrackedAssetIds] = useState<Map<string, string>>(new Map()); // Maps artifact ID to tracking asset ID
+  const [activeChatAssetId, setActiveChatAssetId] = useState<string | null>(null); // For chat widget context
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridScrollRef = useRef<HTMLDivElement>(null);
@@ -224,6 +227,25 @@ Required JSON Output Format (stream ONE object per line):
       if (currentSession && focusedArtifactIndex !== null) {
           const artifact = currentSession.artifacts[focusedArtifactIndex];
           setDrawerState({ isOpen: true, mode: 'code', title: 'Source Code', data: artifact.html });
+      }
+  };
+
+  const handleBuildThis = () => {
+      const currentSession = sessions[currentSessionIndex];
+      if (currentSession && focusedArtifactIndex !== null) {
+          const artifact = currentSession.artifacts[focusedArtifactIndex];
+          const trackingAssetId = trackedAssetIds.get(artifact.id);
+          // Track the build request interaction
+          if (trackingAssetId) {
+              trackInteraction({
+                  assetId: trackingAssetId,
+                  type: 'request_build',
+                  data: { styleName: artifact.styleName }
+              }).catch(() => {});
+          }
+          // Set the active asset for the chat widget
+          setActiveChatAssetId(trackingAssetId || null);
+          // The chat widget will auto-open when it detects an active asset
       }
   };
 
@@ -671,6 +693,9 @@ Return ONLY RAW HTML. No markdown fences.
                     <button onClick={handleShowCode}>
                         <CodeIcon /> Source
                     </button>
+                    <button onClick={handleBuildThis} className="build-button">
+                        <BuildIcon /> Build This
+                    </button>
                  </div>
             </div>
 
@@ -703,6 +728,9 @@ Return ONLY RAW HTML. No markdown fences.
                 </div>
             </div>
         </div>
+
+        {/* Lead Capture Chat Widget */}
+        <ChatWidget assetId={activeChatAssetId || undefined} />
     </>
   );
 }
