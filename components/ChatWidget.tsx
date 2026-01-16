@@ -695,6 +695,19 @@ When the user is ready to proceed, you can mention the checkout process.`;
                         </header>
 
                         <div className="aisim-chat-container">
+                            {/* Always show greeting if no messages */}
+                            {messages.length === 0 && (
+                                <div className="aisim-message assistant">
+                                    <div className="aisim-message-bubble">
+                                        Hi! I'm your AISim build assistant. I'm here to help you bring your design to life.
+
+What would you like to know? You can ask about:
+• Our build process
+• Pricing and timelines
+• Customization options
+                                    </div>
+                                </div>
+                            )}
                             {messages.map((message, index) => (
                                 <div key={index} className={`aisim-message ${message.role}`}>
                                     <div className="aisim-message-bubble">
