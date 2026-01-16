@@ -994,7 +994,7 @@ html, body {
         position: relative;
         min-height: 100vh;
         height: auto;
-        padding: 40px 16px 80px;
+        padding: 24px 24px 80px;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
@@ -1002,6 +1002,11 @@ html, body {
         align-items: center;
         justify-content: flex-start;
         -webkit-overflow-scrolling: touch;
+    }
+
+    /* Add top margin to empty-content to push content down from nav area */
+    .empty-content {
+        margin-top: 60px;
     }
 
     /* Show inline input on mobile */
@@ -1085,7 +1090,6 @@ html, body {
 
     /* Hero content adjustments - centered on mobile */
     .empty-content {
-        margin-top: 0;
         gap: 16px;
         padding: 0 16px;
         max-width: 100%;
@@ -1123,17 +1127,17 @@ html, body {
 /* Mobile Large (768px and below) */
 @media (max-width: 768px) {
     .empty-state {
-        padding: 30px 16px 120px;
+        padding: 24px 24px 120px;
     }
 
     .empty-content {
-        margin-top: 10px;
+        margin-top: 50px;
         gap: 14px;
     }
 
-    /* 3D Logo Tablet - lower it so badge is visible */
+    /* 3D Logo Tablet */
     .monolith-container {
-        margin: 35px 0 20px;
+        margin: 20px 0 15px;
     }
 
     .logo-3d {
@@ -1233,17 +1237,17 @@ html, body {
     }
 
     .empty-state {
-        padding: 20px 12px 130px;
+        padding: 24px 20px 130px;
     }
 
     .empty-content {
-        margin-top: 5px;
+        margin-top: 40px;
         gap: 12px;
     }
 
-    /* 3D Logo Small Mobile - lower it so badge is visible */
+    /* 3D Logo Small Mobile */
     .monolith-container {
-        margin: 25px 0 15px;
+        margin: 15px 0 10px;
         transform-style: preserve-3d;
     }
 
