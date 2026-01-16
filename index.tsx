@@ -482,11 +482,11 @@ Return ONLY RAW HTML. No markdown fences.
                              <span className="badge-pulse"></span>
                              THE SYSTEM THAT COMPOUNDS
                          </div>
-                         <h1>AIsim</h1>
+                         <h1>AISim</h1>
                          <p className="hero-tagline">Building The Future Internet</p>
                          <p className="hero-subtitle">Full-scale automation infrastructure for every industry.<br/>Smart systems that solve what manual processes cannot.</p>
                          <button className="surprise-button" onClick={handleSurpriseMe} disabled={isLoading}>
-                             <SparklesIcon /> Try Flash UI
+                             <SparklesIcon /> Try AISim
                          </button>
                          <p className="hero-hint">Type any UI idea and watch AI build it instantly</p>
                      </div>
