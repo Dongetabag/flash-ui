@@ -482,7 +482,7 @@ Return ONLY RAW HTML. No markdown fences.
                              <span className="badge-pulse"></span>
                              THE SYSTEM THAT COMPOUNDS
                          </div>
-                         <h1>AISim</h1>
+                         <Logo3D />
                          <p className="hero-tagline">Building The Future Internet</p>
                          <p className="hero-subtitle">Full-scale automation infrastructure for every industry.<br/>Smart systems that solve what manual processes cannot.</p>
                          <button className="surprise-button" onClick={handleSurpriseMe} disabled={isLoading}>
@@ -636,6 +636,53 @@ Return ONLY RAW HTML. No markdown fences.
         </div>
     </>
   );
+}
+
+// 3D Floating Logo Component
+function Logo3D() {
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const rect = container.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = (y - centerY) / 15;
+        const rotateY = (centerX - x) / 15;
+
+        container.style.transform = `rotateX(${20 + rotateX}deg) rotateY(${30 + rotateY}deg)`;
+    };
+
+    const handleMouseLeave = () => {
+        const container = containerRef.current;
+        if (!container) return;
+        container.style.transform = `rotateX(20deg) rotateY(30deg)`;
+    };
+
+    return (
+        <div
+            className="monolith-container"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+        >
+            <div className="logo-3d" ref={containerRef}>
+                <div className="slab front">
+                    <div className="mountain-cutout">AISIM</div>
+                </div>
+                <div className="slab back"></div>
+                <div className="slab right"></div>
+                <div className="slab left"></div>
+                <div className="slab top"></div>
+                <div className="slab bottom"></div>
+            </div>
+        </div>
+    );
 }
 
 // Overview Card with 3D Tilt Effect

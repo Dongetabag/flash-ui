@@ -1,40 +1,40 @@
 /* index.css - AIsim Brand Design System */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-    /* AIsim Brand Colors */
-    --app-bg: #0f0f1a; /* AIsim dark background */
-    --stage-bg: #1a1a2e; 
-    --surface: #2d2d44;
-    --text-primary: #f5f5f7;
-    --text-secondary: #8888a0;
-    --text-muted: #4a4a5e;
-    
+    /* AIsim Brand Colors - Ethiopian Sedimentary Palette */
+    --app-bg: #0a0a0d; /* Deeper basalt */
+    --stage-bg: #12121a;
+    --surface: #1a1a24;
+    --text-primary: #fefae0; /* Warm mist */
+    --text-secondary: #a09080; /* Ochre tint */
+    --text-muted: #5a5550;
+
     /* AIsim Primary Colors */
-    --color-primary: #ff9f0a;
-    --color-primary-rgb: 255, 159, 10;
-    --color-primary-light: #ffb940;
-    --color-accent: #ffd080;
-    
+    --color-primary: #d4a373; /* Ochre */
+    --color-primary-rgb: 212, 163, 115;
+    --color-primary-light: #e8c4a0;
+    --color-accent: #bc6c25; /* Terracotta */
+
     /* Accents */
     --color-cyan: #5ac8fa;
-    --color-purple: #bf5af2;
-    
+    --color-clay: #606c38;
+
     /* UI Elements */
     --accent-color: var(--color-primary);
     --accent-bg: var(--surface);
-    --input-bg: rgba(26, 26, 46, 0.8);
-    --border-color: rgba(255, 255, 255, 0.06);
-    --glass-border: rgba(255, 159, 10, 0.2);
-    
-    /* Glow Effects */
-    --glow-primary: 0 0 60px rgba(var(--color-primary-rgb), 0.4);
-    --glow-amber: 0 4px 14px rgba(255, 159, 10, 0.25);
+    --input-bg: rgba(18, 18, 26, 0.9);
+    --border-color: rgba(254, 250, 224, 0.08);
+    --glass-border: rgba(212, 163, 115, 0.2);
 
-    /* Typography - AIsim Font Stack */
+    /* Glow Effects */
+    --glow-primary: 0 0 60px rgba(var(--color-primary-rgb), 0.3);
+    --glow-amber: 0 4px 14px rgba(212, 163, 115, 0.2);
+
+    /* Typography - Clean Modernist Stack */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-    --font-display: 'Space Grotesk', sans-serif;
-    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+    --font-display: 'Inter', sans-serif;
+    --font-mono: 'Space Mono', monospace;
 }
 
 html, body {
@@ -145,23 +145,9 @@ html, body {
     margin-top: 40px;
 }
 
-.empty-content h1 { 
-    font-family: var(--font-display);
-    color: var(--text-primary); 
-    font-weight: 700; 
-    letter-spacing: -0.03em; 
-    font-size: clamp(3rem, 8vw, 6rem);
-    margin: 0;
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 50%, var(--color-primary-light) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    filter: drop-shadow(var(--glow-amber));
-    opacity: 0;
-    animation: dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    animation-delay: 0.2s;
-    text-shadow: 0 10px 30px rgba(255,255,255,0.1);
-    line-height: 1;
+/* Legacy h1 - now using 3D logo instead */
+.empty-content h1 {
+    display: none;
 }
 
 .empty-content p {
@@ -249,6 +235,94 @@ html, body {
 @keyframes pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
     50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+/* === 3D Floating Logo === */
+.monolith-container {
+    position: relative;
+    transform-style: preserve-3d;
+    animation: float 6s ease-in-out infinite;
+    perspective: 1200px;
+    opacity: 0;
+    animation: float 6s ease-in-out infinite, dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation-delay: 0.15s, 0.15s;
+    margin: 20px 0;
+}
+
+.logo-3d {
+    width: 280px;
+    height: 100px;
+    transform-style: preserve-3d;
+    transform: rotateX(20deg) rotateY(30deg);
+    transition: transform 0.3s ease-out;
+}
+
+.slab {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 2px solid #333;
+    background: rgba(20, 20, 20, 0.9);
+    box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.slab::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212, 163, 115, 0.1) 2px, rgba(212, 163, 115, 0.1) 4px);
+    opacity: 0.3;
+}
+
+.front {
+    transform: translateZ(25px);
+    border-color: var(--color-primary);
+}
+
+.back {
+    transform: translateZ(-25px) rotateY(180deg);
+}
+
+.right {
+    transform: rotateY(90deg) translateZ(140px);
+    width: 50px;
+}
+
+.left {
+    transform: rotateY(-90deg) translateZ(140px);
+    width: 50px;
+}
+
+.top {
+    transform: rotateX(90deg) translateZ(50px);
+    height: 50px;
+}
+
+.bottom {
+    transform: rotateX(-90deg) translateZ(50px);
+    height: 50px;
+}
+
+.mountain-cutout {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: transparent;
+    -webkit-text-stroke: 2px var(--color-primary);
+    letter-spacing: 8px;
+    text-transform: uppercase;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
 }
 
 .hero-tagline {
@@ -448,6 +522,33 @@ html, body {
     .hero-badge {
         font-size: 0.65rem;
         padding: 6px 14px;
+    }
+
+    /* 3D Logo Mobile */
+    .monolith-container {
+        margin: 10px 0;
+    }
+
+    .logo-3d {
+        width: 200px;
+        height: 70px;
+    }
+
+    .mountain-cutout {
+        font-size: 2.2rem;
+        letter-spacing: 4px;
+    }
+
+    .right, .left {
+        width: 35px;
+    }
+
+    .right {
+        transform: rotateY(90deg) translateZ(100px);
+    }
+
+    .left {
+        transform: rotateY(-90deg) translateZ(100px);
     }
 }
 
