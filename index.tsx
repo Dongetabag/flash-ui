@@ -432,7 +432,7 @@ Return ONLY RAW HTML. No markdown fences.
 
   return (
     <>
-        <a href="https://aisim-portfolio-89jf8h9if-dongetabags-projects.vercel.app" target="_blank" rel="noreferrer" className={`creator-credit ${hasStarted ? 'hide-on-mobile' : ''}`}>
+        <a href="https://aisim.app" target="_blank" rel="noreferrer" className={`creator-credit ${hasStarted ? 'hide-on-mobile' : ''}`}>
             powered by AIsim
         </a>
 
