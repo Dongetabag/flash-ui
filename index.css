@@ -684,6 +684,14 @@ html, body {
     opacity: 0.9;
 }
 
+/* === Mobile Inline Input (shown only on mobile) === */
+.mobile-inline-input {
+    display: none; /* Hidden on desktop */
+    width: 100%;
+    max-width: 500px;
+    margin-top: 16px;
+}
+
 /* === Floating Input === */
 .floating-input-container {
     position: fixed;
@@ -983,16 +991,33 @@ html, body {
     }
 
     .empty-state {
-        position: fixed;
-        inset: 0;
+        position: relative;
         min-height: 100vh;
-        height: 100vh;
-        padding: 0 16px;
-        overflow: hidden;
+        height: auto;
+        padding: 60px 16px 40px;
+        overflow-y: auto;
+        overflow-x: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
+    }
+
+    /* Show inline input on mobile */
+    .mobile-inline-input {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 20px;
+    }
+
+    .mobile-inline-input .input-wrapper {
+        max-width: 100%;
+    }
+
+    /* Hide floating input on mobile when on empty state */
+    .floating-input-container {
+        display: none;
     }
 
     .artifact-grid {
@@ -1043,19 +1068,6 @@ html, body {
         justify-content: center;
     }
 
-    /* Centered input bar for mobile - vertically centered on screen */
-    .floating-input-container {
-        position: fixed;
-        top: 50%;
-        left: 0;
-        right: 0;
-        bottom: auto;
-        transform: translateY(-50%);
-        padding: 12px 16px;
-        background: transparent;
-        z-index: 100;
-    }
-
     .input-wrapper {
         max-width: 100%;
     }
@@ -1087,9 +1099,12 @@ html, body {
         padding: 0 10px;
     }
 
-    /* Hide overview section on tablet/mobile for cleaner centered layout */
+    /* Show overview section on mobile under the input */
     .overview-section {
-        display: none;
+        display: block;
+        margin-top: 30px;
+        padding: 0 8px;
+        padding-bottom: 40px;
     }
 
     .overview-cta {

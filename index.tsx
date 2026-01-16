@@ -488,10 +488,40 @@ Return ONLY RAW HTML. No markdown fences.
                          <button className="surprise-button" onClick={handleSurpriseMe} disabled={isLoading}>
                              <SparklesIcon /> Try AISim
                          </button>
+
+                         {/* Inline Input for Mobile - placed under Try AISim button */}
+                         <div className="mobile-inline-input">
+                             <div className={`input-wrapper ${isLoading ? 'loading' : ''}`}>
+                                 {(!inputValue && !isLoading) && (
+                                     <div className="animated-placeholder" key={`mobile-${placeholderIndex}`}>
+                                         <span className="placeholder-text">{placeholders[placeholderIndex]}</span>
+                                     </div>
+                                 )}
+                                 {!isLoading ? (
+                                     <input
+                                         type="text"
+                                         value={inputValue}
+                                         onChange={handleInputChange}
+                                         onKeyDown={handleKeyDown}
+                                         disabled={isLoading}
+                                         placeholder=""
+                                     />
+                                 ) : (
+                                     <div className="input-generating-label">
+                                         <span className="generating-prompt-text">{currentSession?.prompt}</span>
+                                         <ThinkingIcon />
+                                     </div>
+                                 )}
+                                 <button className="send-button" onClick={() => handleSendMessage()} disabled={isLoading || !inputValue.trim()}>
+                                     <ArrowUpIcon />
+                                 </button>
+                             </div>
+                         </div>
+
                          <p className="hero-hint">Type any UI idea and watch AI build it instantly</p>
                      </div>
 
-                     {/* Quick Overview Section */}
+                     {/* Quick Overview Section - Description bars under input */}
                      <div className="overview-section">
                          <div className="overview-grid">
                              <OverviewCard
