@@ -5,17 +5,20 @@
 
 import React, { useEffect, useRef } from 'react';
 import { Artifact } from '../types';
+import { trackInteraction } from '../src/lib/tracking';
 
 interface ArtifactCardProps {
     artifact: Artifact;
     isFocused: boolean;
     onClick: () => void;
+    trackingAssetId?: string;
 }
 
-const ArtifactCard = React.memo(({ 
-    artifact, 
-    isFocused, 
-    onClick 
+const ArtifactCard = React.memo(({
+    artifact,
+    isFocused,
+    onClick,
+    trackingAssetId
 }: ArtifactCardProps) => {
     const codeRef = useRef<HTMLPreElement>(null);
 
@@ -28,10 +31,22 @@ const ArtifactCard = React.memo(({
 
     const isBlurring = artifact.status === 'streaming';
 
+    // Track click interaction
+    const handleClick = () => {
+        if (trackingAssetId) {
+            trackInteraction({
+                assetId: trackingAssetId,
+                type: 'click',
+                data: { styleName: artifact.styleName }
+            }).catch(console.error);
+        }
+        onClick();
+    };
+
     return (
-        <div 
+        <div
             className={`artifact-card ${isFocused ? 'focused' : ''} ${isBlurring ? 'generating' : ''}`}
-            onClick={onClick}
+            onClick={handleClick}
         >
             <div className="artifact-header">
                 <span className="artifact-style-tag">{artifact.styleName}</span>

@@ -16,15 +16,16 @@ import { generateId } from './utils';
 import DottedGlowBackground from './components/DottedGlowBackground';
 import ArtifactCard from './components/ArtifactCard';
 import SideDrawer from './components/SideDrawer';
-import { 
-    ThinkingIcon, 
-    CodeIcon, 
-    SparklesIcon, 
-    ArrowLeftIcon, 
-    ArrowRightIcon, 
-    ArrowUpIcon, 
-    GridIcon 
+import {
+    ThinkingIcon,
+    CodeIcon,
+    SparklesIcon,
+    ArrowLeftIcon,
+    ArrowRightIcon,
+    ArrowUpIcon,
+    GridIcon
 } from './components/Icons';
+import { trackAsset, trackInteraction, initTracking } from './src/lib/tracking';
 
 function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -44,11 +45,17 @@ function App() {
   }>({ isOpen: false, mode: null, title: '', data: null });
 
   const [componentVariations, setComponentVariations] = useState<ComponentVariation[]>([]);
+  const [trackedAssetIds, setTrackedAssetIds] = useState<Map<string, string>>(new Map()); // Maps artifact ID to tracking asset ID
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridScrollRef = useRef<HTMLDivElement>(null);
 
+  // Initialize tracking on mount (non-blocking)
   useEffect(() => {
+      // Initialize tracking in background, don't block on errors
+      initTracking().catch(() => {
+          // Silently fail - tracking is optional
+      });
       inputRef.current?.focus();
   }, []);
 
@@ -360,14 +367,33 @@ Return ONLY RAW HTML. No markdown fences.
                 if (finalHtml.startsWith('```')) finalHtml = finalHtml.substring(3).trimStart();
                 if (finalHtml.endsWith('```')) finalHtml = finalHtml.substring(0, finalHtml.length - 3).trimEnd();
 
-                setSessions(prev => prev.map(sess => 
+                setSessions(prev => prev.map(sess =>
                     sess.id === sessionId ? {
                         ...sess,
-                        artifacts: sess.artifacts.map(art => 
+                        artifacts: sess.artifacts.map(art =>
                             art.id === artifact.id ? { ...art, html: finalHtml, status: finalHtml ? 'complete' : 'error' } : art
                         )
                     } : sess
                 ));
+
+                // Track the generated asset (non-blocking, fail silently)
+                if (finalHtml) {
+                    const generationEndTime = Date.now();
+                    // Fire and forget - don't block on tracking
+                    trackAsset({
+                        prompt: trimmedInput,
+                        styleName: styleInstruction,
+                        htmlContent: finalHtml,
+                        generationTimeMs: generationEndTime - baseTime,
+                        modelUsed: 'gemini-3-flash-preview'
+                    }).then(result => {
+                        if (result?.assetId) {
+                            setTrackedAssetIds(prev => new Map(prev).set(artifact.id, result.assetId));
+                        }
+                    }).catch(() => {
+                        // Silently fail - tracking shouldn't break the app
+                    });
+                }
 
             } catch (e: any) {
                 console.error('Error generating artifact:', e);
@@ -605,11 +631,12 @@ Return ONLY RAW HTML. No markdown fences.
                                     const isFocused = focusedArtifactIndex === aIndex;
                                     
                                     return (
-                                        <ArtifactCard 
+                                        <ArtifactCard
                                             key={artifact.id}
                                             artifact={artifact}
                                             isFocused={isFocused}
                                             onClick={() => setFocusedArtifactIndex(aIndex)}
+                                            trackingAssetId={trackedAssetIds.get(artifact.id)}
                                         />
                                     );
                                 })}
