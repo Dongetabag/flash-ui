@@ -700,7 +700,7 @@ When the user is ready to proceed, you can mention the checkout process.`;
                                 className="aisim-checkout-btn"
                                 onClick={handleCheckout}
                             >
-                                Proceed to Checkout →
+                                Build Now →
                             </button>
                         </div>
                     </div>
