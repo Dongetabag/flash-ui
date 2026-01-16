@@ -157,6 +157,7 @@ When the user is ready to proceed, you can mention the checkout process.`;
             });
 
             // Build the full prompt with system instruction and conversation
+            // Google GenAI expects a single user message with the full context
             const conversationText = conversationHistory
                 .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.parts[0].text}`)
                 .join('\n\n');
@@ -593,7 +594,8 @@ When the user is ready to proceed, you can mention the checkout process.`;
                     background: linear-gradient(135deg, #ff9f0a 0%, #ffb840 40%, #ffd080 100%);
                     border: none;
                     border-radius: 12px;
-                    padding: 12px 20px;
+                    padding: 14px 20px;
+                    min-height: 48px;
                     color: #0f0f1a;
                     font-family: 'Inter', sans-serif;
                     font-size: 0.85rem;
@@ -603,11 +605,25 @@ When the user is ready to proceed, you can mention the checkout process.`;
                     transition: all 0.3s;
                     text-transform: uppercase;
                     letter-spacing: 0.05em;
+                    touch-action: manipulation;
+                    -webkit-tap-highlight-color: transparent;
+                    user-select: none;
                 }
 
                 .aisim-checkout-btn:hover {
                     transform: translateY(-2px);
                     box-shadow: 0 8px 30px rgba(255, 159, 10, 0.4);
+                }
+
+                .aisim-checkout-btn:active {
+                    transform: translateY(0);
+                    box-shadow: 0 4px 15px rgba(255, 159, 10, 0.3);
+                }
+
+                .aisim-checkout-btn:disabled {
+                    opacity: 0.6;
+                    cursor: not-allowed;
+                    transform: none;
                 }
 
                 @media (max-width: 480px) {
@@ -627,6 +643,19 @@ When the user is ready to proceed, you can mention the checkout process.`;
                     .aisim-trigger {
                         bottom: 16px;
                         right: 16px;
+                    }
+                    .aisim-checkout-btn {
+                        padding: 16px 20px;
+                        min-height: 52px;
+                        font-size: 0.9rem;
+                    }
+                    .aisim-send-btn {
+                        min-width: 40px;
+                        min-height: 40px;
+                    }
+                    .aisim-input {
+                        font-size: 1rem;
+                        padding: 12px 0;
                     }
                 }
             `}</style>
