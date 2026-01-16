@@ -112,7 +112,7 @@ export default function ChatWidget({ assetId, buildData, onClose }: ChatWidgetPr
         setIsLoading(true);
 
         try {
-            const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
+            const apiKey = process.env.API_KEY;
             if (!apiKey) {
                 throw new Error('API key not configured');
             }
@@ -138,11 +138,17 @@ Your role:
 
 When the user is ready to proceed, you can mention the checkout process.`;
 
-            // Build conversation history
-            const conversationHistory = messages.map(msg => ({
-                role: msg.role === 'user' ? 'user' : 'model',
-                parts: [{ text: msg.content }]
-            }));
+            // Build conversation history in the format expected by Google GenAI
+            // Format: array of { role: 'user' | 'model', parts: [{ text: string }] }
+            const conversationHistory: Array<{ role: 'user' | 'model'; parts: Array<{ text: string }> }> = [];
+            
+            // Add all previous messages
+            messages.forEach(msg => {
+                conversationHistory.push({
+                    role: msg.role === 'user' ? 'user' : 'model',
+                    parts: [{ text: msg.content }]
+                });
+            });
 
             // Add current user message
             conversationHistory.push({
@@ -150,12 +156,19 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 parts: [{ text: userMessage.content }]
             });
 
-            // Generate AI response
+            // Build the full prompt with system instruction and conversation
+            const conversationText = conversationHistory
+                .map(msg => `${msg.role === 'user' ? 'User' : 'Assistant'}: ${msg.parts[0].text}`)
+                .join('\n\n');
+
+            const fullPrompt = `${systemPrompt}\n\nConversation:\n${conversationText}\n\nAssistant:`;
+
+            // Generate AI response using the same pattern as index.tsx
             const response = await ai.models.generateContent({
                 model: 'gemini-3-flash-preview',
-                contents: conversationHistory,
-                config: {
-                    systemInstruction: systemPrompt
+                contents: { 
+                    role: 'user', 
+                    parts: [{ text: fullPrompt }] 
                 }
             });
 
