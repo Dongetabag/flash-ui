@@ -298,13 +298,18 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 .aisim-overlay {
                     position: fixed;
                     inset: 0;
-                    background: rgba(3, 7, 17, 0.9);
-                    backdrop-filter: blur(8px);
+                    background: rgba(3, 7, 17, 0.4);
+                    backdrop-filter: blur(4px);
                     z-index: 10000;
                     display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    padding: 20px;
+                    align-items: flex-end;
+                    justify-content: flex-end;
+                    padding: 0;
+                    pointer-events: none;
+                }
+                
+                .aisim-overlay.active {
+                    pointer-events: auto;
                 }
 
                 .aisim-caustic-bg {
@@ -336,24 +341,26 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 }
 
                 .aisim-modal {
-                    position: relative;
-                    background: rgba(15, 23, 42, 0.65);
+                    position: fixed;
+                    bottom: 100px;
+                    right: 24px;
+                    background: rgba(15, 23, 42, 0.95);
                     backdrop-filter: blur(32px) saturate(180%);
                     -webkit-backdrop-filter: blur(32px) saturate(180%);
-                    border-radius: 24px;
-                    width: 100%;
-                    max-width: 420px;
-                    max-height: 600px;
-                    height: 600px;
+                    border-radius: 20px;
+                    width: 380px;
+                    height: 500px;
+                    max-height: calc(100vh - 140px);
                     overflow: hidden;
                     display: flex;
                     flex-direction: column;
                     box-shadow:
-                        0 20px 50px rgba(0, 0, 0, 0.5),
-                        inset 0 0 0 1px rgba(255, 255, 255, 0.05);
-                    border: 1px solid rgba(255, 255, 255, 0.12);
-                    animation: entryReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-                    z-index: 1;
+                        0 20px 60px rgba(0, 0, 0, 0.6),
+                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+                    border: 1px solid rgba(255, 255, 255, 0.15);
+                    animation: entryReveal 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+                    z-index: 10001;
+                    pointer-events: auto;
                 }
 
                 .aisim-modal::before {
@@ -377,9 +384,9 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 }
 
                 .aisim-header {
-                    padding: 24px 24px 20px;
-                    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+                    padding: 16px 18px 12px;
+                    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
@@ -442,11 +449,28 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 .aisim-chat-container {
                     flex: 1;
                     overflow-y: auto;
-                    padding: 24px;
+                    padding: 16px 18px;
                     display: flex;
                     flex-direction: column;
-                    gap: 16px;
+                    gap: 12px;
                     min-height: 0;
+                }
+                
+                .aisim-chat-container::-webkit-scrollbar {
+                    width: 6px;
+                }
+                
+                .aisim-chat-container::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                
+                .aisim-chat-container::-webkit-scrollbar-thumb {
+                    background: rgba(255, 255, 255, 0.2);
+                    border-radius: 3px;
+                }
+                
+                .aisim-chat-container::-webkit-scrollbar-thumb:hover {
+                    background: rgba(255, 255, 255, 0.3);
                 }
 
                 .aisim-message {
@@ -489,9 +513,9 @@ When the user is ready to proceed, you can mention the checkout process.`;
                 }
 
                 .aisim-input-container {
-                    padding: 16px 24px 20px;
-                    border-top: 1px solid rgba(255, 255, 255, 0.08);
-                    background: linear-gradient(0deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+                    padding: 12px 16px 14px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.1);
+                    background: linear-gradient(0deg, rgba(255,255,255,0.03) 0%, transparent 100%);
                     flex-shrink: 0;
                 }
 
@@ -575,23 +599,21 @@ When the user is ready to proceed, you can mention the checkout process.`;
 
                 @media (max-width: 480px) {
                     .aisim-modal {
-                        max-width: calc(100% - 32px);
-                        max-height: calc(100vh - 120px);
-                        height: auto;
-                        min-height: 500px;
-                        border-radius: 24px;
-                        position: relative;
+                        width: calc(100vw - 32px);
+                        max-width: 380px;
+                        height: calc(100vh - 140px);
+                        max-height: 500px;
+                        bottom: 100px;
+                        right: 16px;
+                        left: auto;
                     }
                     .aisim-overlay {
-                        align-items: center;
-                        padding: 20px 16px;
+                        align-items: flex-end;
+                        justify-content: flex-end;
                     }
                     .aisim-trigger {
                         bottom: 16px;
                         right: 16px;
-                    }
-                    .aisim-chat-container {
-                        max-height: 400px;
                     }
                 }
             `}</style>
@@ -605,7 +627,7 @@ When the user is ready to proceed, you can mention the checkout process.`;
             </button>
 
             {isOpen && (
-                <div className="aisim-overlay" onClick={() => setIsOpen(false)}>
+                <div className="aisim-overlay active" onClick={() => setIsOpen(false)}>
                     <div className="aisim-caustic-bg">
                         <div className="aisim-caustic-layer"></div>
                     </div>
