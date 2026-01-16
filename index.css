@@ -1,20 +1,40 @@
-/* index.css - Immersive "Radical" Redesign */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Roboto+Mono&display=swap');
+/* index.css - AIsim Brand Design System */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
 :root {
-    --app-bg: #09090b; /* Deep dark background */
-    --stage-bg: #18181b; 
-    --text-primary: #ffffff;
-    --text-secondary: #a1a1aa;
-    --accent-color: #ffffff;
-    --accent-bg: #27272a;
+    /* AIsim Brand Colors */
+    --app-bg: #0f0f1a; /* AIsim dark background */
+    --stage-bg: #1a1a2e; 
+    --surface: #2d2d44;
+    --text-primary: #f5f5f7;
+    --text-secondary: #8888a0;
+    --text-muted: #4a4a5e;
     
-    --input-bg: rgba(24, 24, 27, 0.8); /* Semi-transparent dark for floating input */
-    --border-color: #27272a;
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* AIsim Primary Colors */
+    --color-primary: #ff9f0a;
+    --color-primary-rgb: 255, 159, 10;
+    --color-primary-light: #ffb940;
+    --color-accent: #ffd080;
+    
+    /* Accents */
+    --color-cyan: #5ac8fa;
+    --color-purple: #bf5af2;
+    
+    /* UI Elements */
+    --accent-color: var(--color-primary);
+    --accent-bg: var(--surface);
+    --input-bg: rgba(26, 26, 46, 0.8);
+    --border-color: rgba(255, 255, 255, 0.06);
+    --glass-border: rgba(255, 159, 10, 0.2);
+    
+    /* Glow Effects */
+    --glow-primary: 0 0 60px rgba(var(--color-primary-rgb), 0.4);
+    --glow-amber: 0 4px 14px rgba(255, 159, 10, 0.25);
 
+    /* Typography - AIsim Font Stack */
     --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+    --font-display: 'Space Grotesk', sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
 }
 
 html, body {
@@ -119,14 +139,17 @@ html, body {
 }
 
 .empty-content h1 { 
+    font-family: var(--font-display);
     color: var(--text-primary); 
-    font-weight: 800; 
-    letter-spacing: -0.05em; 
-    font-size: 6rem;
+    font-weight: 700; 
+    letter-spacing: -0.03em; 
+    font-size: clamp(3rem, 8vw, 6rem);
     margin: 0;
-    background: linear-gradient(to bottom right, #fff, #aaa);
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 50%, var(--color-primary-light) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(var(--glow-amber));
     opacity: 0;
     animation: dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: 0.2s;
@@ -135,10 +158,12 @@ html, body {
 }
 
 .empty-content p {
-    font-size: 1.4rem;
+    font-family: var(--font-sans);
+    font-size: clamp(1rem, 2vw, 1.4rem);
     max-width: 600px;
-    line-height: 1.4;
+    line-height: 1.6;
     margin: 0;
+    color: var(--text-secondary);
     opacity: 0;
     color: var(--text-secondary);
     animation: dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -147,24 +172,30 @@ html, body {
 
 .surprise-button {
     margin-top: 10px;
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    padding: 12px 24px;
-    border-radius: 99px;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    border: 1px solid rgba(var(--color-primary-rgb), 0.3);
+    color: var(--app-bg);
+    padding: 14px 28px;
+    border-radius: 12px;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
+    font-family: var(--font-sans);
     cursor: pointer;
     display: flex; align-items: center; gap: 8px;
     opacity: 0;
     animation: dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     animation-delay: 0.8s;
-    transition: all 0.3s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: var(--glow-amber);
 }
-.surprise-button:hover {
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
-    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+.surprise-button:hover:not(:disabled) {
+    background: linear-gradient(135deg, var(--color-primary-light) 0%, var(--color-primary) 100%);
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 0 30px rgba(var(--color-primary-rgb), 0.5);
+}
+.surprise-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 @keyframes dramaticEntrance {
@@ -462,13 +493,26 @@ html, body {
 .send-button {
     width: 40px; height: 40px;
     border-radius: 50%; border: none;
-    background: var(--accent-color); color: #000;
+    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-accent) 100%);
+    color: var(--app-bg);
     display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: transform 0.2s ease; flex-shrink: 0;
+    cursor: pointer; 
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1); 
+    flex-shrink: 0;
     z-index: 2;
+    box-shadow: var(--glow-amber);
 }
-.send-button:hover:not(:disabled) { transform: scale(1.05); }
-.send-button:disabled { background: var(--accent-bg); color: var(--text-secondary); cursor: not-allowed; opacity: 0.5; }
+.send-button:hover:not(:disabled) { 
+    transform: scale(1.1); 
+    box-shadow: 0 0 20px rgba(var(--color-primary-rgb), 0.6);
+}
+.send-button:disabled { 
+    background: var(--surface); 
+    color: var(--text-muted); 
+    cursor: not-allowed; 
+    opacity: 0.5;
+    box-shadow: none;
+}
 
 /* === Action Bar === */
 .action-bar {
