@@ -263,70 +263,51 @@ Required JSON Output Format (stream ONE object per line):
           return;
       }
 
-      const trackingAssetId = trackedAssetIds.get(artifact.id);
-      
-      if (!trackingAssetId) {
-          alert('Unable to process build request. Please try again.');
-          return;
-      }
+      // Get tracking ID if available, but don't block if not
+      const trackingAssetId = trackedAssetIds.get(artifact.id) || `local-${artifact.id}`;
 
+      // Store HTML content in sessionStorage for the contact form
+      sessionStorage.setItem('aisim_build_html', artifact.html);
+
+      // Try to send build request in background (non-blocking)
+      let buildId: string | undefined;
       try {
-          // Format code as markdown
           const markdownCode = `# ${artifact.styleName}\n\n**Prompt:** ${currentSession.prompt}\n\n**Generated:** ${new Date().toISOString()}\n\n\`\`\`html\n${artifact.html}\n\`\`\``;
           
-          // Send build request with code to backend
           const buildResult = await sendBuildRequest({
               assetId: trackingAssetId,
               prompt: currentSession.prompt,
               styleName: artifact.styleName,
               htmlContent: artifact.html,
               codeMarkdown: markdownCode
-          });
+          }).catch(() => null);
 
-          // Track the build request interaction
-          await trackInteraction({
+          buildId = buildResult?.buildId;
+
+          // Track the build request interaction (non-blocking)
+          trackInteraction({
               assetId: trackingAssetId,
               type: 'request_build',
               data: {
                   styleName: artifact.styleName,
                   prompt: currentSession.prompt,
-                  buildId: buildResult?.buildId
+                  buildId
               }
           }).catch(() => {});
-
-          // Set the build data for the chat widget
-          setActiveBuildData({
-              buildId: buildResult?.buildId,
-              prompt: currentSession.prompt,
-              styleName: artifact.styleName,
-              htmlContent: artifact.html,
-              sessionId: trackingAssetId
-          });
-
-          // Store HTML content in sessionStorage for the contact form
-          sessionStorage.setItem('aisim_build_html', artifact.html);
-
-          // Build URL parameters and redirect directly to contact page
-          const params = new URLSearchParams();
-          if (buildResult?.buildId) params.set('buildId', buildResult.buildId);
-          if (trackingAssetId) params.set('assetId', trackingAssetId);
-          if (currentSession.prompt) params.set('prompt', encodeURIComponent(currentSession.prompt.substring(0, 500)));
-          if (artifact.styleName) params.set('style', encodeURIComponent(artifact.styleName));
-          if (trackingAssetId) params.set('session', trackingAssetId);
-
-          // Redirect to contact form
-          window.location.href = `/contact.html?${params.toString()}`;
-
       } catch (error) {
-          console.error('Error initiating build:', error);
-          // Still set build data and open the chat widget even if backend call fails
-          setActiveBuildData({
-              prompt: currentSession.prompt,
-              styleName: artifact.styleName,
-              htmlContent: artifact.html,
-              sessionId: trackingAssetId
-          });
-          setActiveChatAssetId(trackingAssetId);
+          console.error('Build request error (continuing anyway):', error);
+      }
+
+      // Build URL parameters and redirect directly to contact page
+      const params = new URLSearchParams();
+      if (buildId) params.set('buildId', buildId);
+      params.set('assetId', trackingAssetId);
+      if (currentSession.prompt) params.set('prompt', encodeURIComponent(currentSession.prompt.substring(0, 500)));
+      if (artifact.styleName) params.set('style', encodeURIComponent(artifact.styleName));
+      params.set('session', trackingAssetId);
+
+      // Always redirect to contact form
+      window.location.href = `/contact.html?${params.toString()}`;
       }
   };
 
