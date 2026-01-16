@@ -494,30 +494,30 @@ Return ONLY RAW HTML. No markdown fences.
                      {/* Quick Overview Section */}
                      <div className="overview-section">
                          <div className="overview-grid">
-                             <div className="overview-card">
-                                 <div className="overview-icon">
+                             <OverviewCard
+                                 icon={
                                      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
                                          <path d="M8 12h32M8 24h24M8 36h28" />
                                          <circle cx="40" cy="24" r="6" fill="rgba(255,159,10,0.2)" stroke="#ff9f0a" />
                                      </svg>
-                                 </div>
-                                 <h3>Data Flow Systems</h3>
-                                 <p>Smart pipelines that route, transform, and contextualize information automatically.</p>
-                             </div>
-                             <div className="overview-card">
-                                 <div className="overview-icon">
+                                 }
+                                 title="Data Flow Systems"
+                                 description="Smart pipelines that route, transform, and contextualize information automatically."
+                             />
+                             <OverviewCard
+                                 icon={
                                      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
                                          <circle cx="24" cy="24" r="18" />
                                          <circle cx="24" cy="24" r="8" stroke="#ff9f0a" />
                                          <circle cx="24" cy="24" r="3" fill="#ff9f0a" />
                                          <path d="M24 6v6M24 36v6M6 24h6M36 24h6" stroke="#ff9f0a" strokeDasharray="2 2" />
                                      </svg>
-                                 </div>
-                                 <h3>AI Agents</h3>
-                                 <p>Autonomous agents that handle customer support, sales outreach, and decision-making at scale.</p>
-                             </div>
-                             <div className="overview-card">
-                                 <div className="overview-icon">
+                                 }
+                                 title="AI Agents"
+                                 description="Autonomous agents that handle customer support, sales outreach, and decision-making at scale."
+                             />
+                             <OverviewCard
+                                 icon={
                                      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
                                          <rect x="6" y="6" width="14" height="14" rx="3" />
                                          <rect x="28" y="6" width="14" height="14" rx="3" stroke="#ff9f0a" />
@@ -525,12 +525,12 @@ Return ONLY RAW HTML. No markdown fences.
                                          <rect x="28" y="28" width="14" height="14" rx="3" />
                                          <path d="M20 13h8M13 20v8M35 20v8M20 35h8" strokeDasharray="3 2" />
                                      </svg>
-                                 </div>
-                                 <h3>Automation Engine</h3>
-                                 <p>Eliminate repetitive tasks and reduce cognitive load. Systems that compound your productivity.</p>
-                             </div>
-                             <div className="overview-card">
-                                 <div className="overview-icon">
+                                 }
+                                 title="Automation Engine"
+                                 description="Eliminate repetitive tasks and reduce cognitive load. Systems that compound your productivity."
+                             />
+                             <OverviewCard
+                                 icon={
                                      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
                                          <rect x="4" y="8" width="40" height="32" rx="3" />
                                          <path d="M4 16h40" />
@@ -539,10 +539,10 @@ Return ONLY RAW HTML. No markdown fences.
                                          <path d="M12 24h12M12 30h8" stroke="#ff9f0a" />
                                          <rect x="28" y="22" width="12" height="12" rx="2" fill="rgba(255,159,10,0.15)" stroke="#ff9f0a" />
                                      </svg>
-                                 </div>
-                                 <h3>Digital Infrastructure</h3>
-                                 <p>Full-stack platforms built for scale. Real-time data, intelligent backends, and interfaces that convert.</p>
-                             </div>
+                                 }
+                                 title="Digital Infrastructure"
+                                 description="Full-stack platforms built for scale. Real-time data, intelligent backends, and interfaces that convert."
+                             />
                          </div>
                          <a href="https://portfolio.aisim.app" className="overview-cta">
                              Explore Our Work <span>→</span>
@@ -636,6 +636,48 @@ Return ONLY RAW HTML. No markdown fences.
         </div>
     </>
   );
+}
+
+// Overview Card with 3D Tilt Effect
+function OverviewCard({ icon, title, description }: { icon: React.ReactNode, title: string, description: string }) {
+    const cardRef = useRef<HTMLDivElement>(null);
+
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const card = cardRef.current;
+        if (!card) return;
+
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+
+        const rotateX = (y - centerY) / 12;
+        const rotateY = (centerX - x) / 12;
+
+        card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(-8px)`;
+    };
+
+    const handleMouseLeave = () => {
+        const card = cardRef.current;
+        if (!card) return;
+        card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) translateY(0)`;
+    };
+
+    return (
+        <div
+            ref={cardRef}
+            className="overview-card"
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+        >
+            <div className="quartz-overlay"></div>
+            <div className="overview-icon">{icon}</div>
+            <h3>{title}</h3>
+            <p>{description}</p>
+        </div>
+    );
 }
 
 const rootElement = document.getElementById('root');
