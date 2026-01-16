@@ -994,8 +994,7 @@ html, body {
         position: relative;
         min-height: 100vh;
         height: auto;
-        padding: 100px 16px 80px;
-        padding-top: max(100px, calc(env(safe-area-inset-top) + 70px));
+        padding: 40px 16px 80px;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
@@ -1124,8 +1123,7 @@ html, body {
 /* Mobile Large (768px and below) */
 @media (max-width: 768px) {
     .empty-state {
-        padding: 90px 16px 120px;
-        padding-top: max(90px, calc(env(safe-area-inset-top) + 60px));
+        padding: 30px 16px 120px;
     }
 
     .empty-content {
@@ -1235,8 +1233,7 @@ html, body {
     }
 
     .empty-state {
-        padding: 80px 12px 130px;
-        padding-top: max(80px, calc(env(safe-area-inset-top) + 55px));
+        padding: 20px 12px 130px;
     }
 
     .empty-content {
