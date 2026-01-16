@@ -340,10 +340,11 @@ When the user is ready to proceed, you can mention the checkout process.`;
                     background: rgba(15, 23, 42, 0.65);
                     backdrop-filter: blur(32px) saturate(180%);
                     -webkit-backdrop-filter: blur(32px) saturate(180%);
-                    border-radius: 32px;
+                    border-radius: 24px;
                     width: 100%;
-                    max-width: 500px;
-                    max-height: 90vh;
+                    max-width: 420px;
+                    max-height: 600px;
+                    height: 600px;
                     overflow: hidden;
                     display: flex;
                     flex-direction: column;
@@ -574,19 +575,23 @@ When the user is ready to proceed, you can mention the checkout process.`;
 
                 @media (max-width: 480px) {
                     .aisim-modal {
-                        max-width: 100%;
-                        max-height: 100vh;
-                        border-radius: 0;
-                        position: fixed;
-                        inset: 0;
+                        max-width: calc(100% - 32px);
+                        max-height: calc(100vh - 120px);
+                        height: auto;
+                        min-height: 500px;
+                        border-radius: 24px;
+                        position: relative;
                     }
                     .aisim-overlay {
-                        align-items: stretch;
-                        padding: 0;
+                        align-items: center;
+                        padding: 20px 16px;
                     }
                     .aisim-trigger {
                         bottom: 16px;
                         right: 16px;
+                    }
+                    .aisim-chat-container {
+                        max-height: 400px;
                     }
                 }
             `}</style>
