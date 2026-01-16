@@ -727,6 +727,12 @@ html, body {
     pointer-events: none;
 }
 
+/* Hide floating input when in fullscreen mode */
+.stage-container.mode-fullscreen ~ .floating-input-container,
+body:has(.stage-container.mode-fullscreen) .floating-input-container {
+    display: none !important;
+}
+
 .input-wrapper {
     pointer-events: auto;
     width: 100%; max-width: 600px;
@@ -1130,6 +1136,116 @@ html, body {
         top: 40%;
         left: 50%;
         transform: translate(-50%, -40%) !important; /* Force centering despite any parent shifts */
+    }
+    
+    /* Fullscreen mode for mobile */
+    .stage-container.mode-fullscreen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        background: var(--app-bg);
+        overflow: hidden;
+    }
+    
+    .stage-container.mode-fullscreen .artifact-card.focused {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) !important;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+    
+    .stage-container.mode-fullscreen .artifact-card.focused .artifact-header {
+        display: none;
+    }
+    
+    .stage-container.mode-fullscreen .artifact-card.focused .artifact-iframe {
+        border-radius: 0;
+    }
+    
+    /* Fullscreen Controls */
+    .fullscreen-controls {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1001;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: max(12px, env(safe-area-inset-top, 12px)) max(16px, env(safe-area-inset-right, 16px)) 12px max(16px, env(safe-area-inset-left, 16px));
+        background: linear-gradient(180deg, rgba(15, 15, 26, 0.95) 0%, rgba(15, 15, 26, 0.8) 50%, transparent 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        pointer-events: none;
+    }
+    
+    .fullscreen-exit-btn,
+    .fullscreen-back-btn {
+        pointer-events: auto;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 12px;
+        padding: 10px 14px;
+        color: var(--text-primary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-sans);
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+    }
+    
+    .fullscreen-exit-btn {
+        padding: 10px;
+        border-radius: 50%;
+        width: 44px;
+        height: 44px;
+        justify-content: center;
+        background: rgba(255, 159, 10, 0.15);
+        border-color: rgba(255, 159, 10, 0.3);
+        color: #ff9f0a;
+    }
+    
+    .fullscreen-back-btn {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--text-primary);
+    }
+    
+    .fullscreen-exit-btn:hover,
+    .fullscreen-back-btn:hover {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+    }
+    
+    .fullscreen-exit-btn:hover {
+        background: rgba(255, 159, 10, 0.25);
+        border-color: rgba(255, 159, 10, 0.5);
+        box-shadow: 0 0 20px rgba(255, 159, 10, 0.3);
+    }
+    
+    .fullscreen-exit-btn svg,
+    .fullscreen-back-btn svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+    }
+    
+    .action-bar.fullscreen-hidden {
+        display: none !important;
     }
 
     .action-bar {
@@ -1555,6 +1671,40 @@ html, body {
         height: 60vh;
         top: 38%;
     }
+    
+    /* Fullscreen mode for small mobile */
+    .stage-container.mode-fullscreen .artifact-card.focused {
+        width: 100vw;
+        height: 100vh;
+        max-width: 100vw;
+        max-height: 100vh;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) !important;
+        border-radius: 0;
+    }
+    
+    .fullscreen-controls {
+        padding: max(10px, env(safe-area-inset-top, 10px)) max(12px, env(safe-area-inset-right, 12px)) 10px max(12px, env(safe-area-inset-left, 12px));
+    }
+    
+    .fullscreen-exit-btn,
+    .fullscreen-back-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+    
+    .fullscreen-exit-btn {
+        width: 40px;
+        height: 40px;
+        padding: 8px;
+    }
+    
+    .fullscreen-exit-btn svg,
+    .fullscreen-back-btn svg {
+        width: 18px;
+        height: 18px;
+    }
 
     /* Creator Credit Small Mobile */
     .creator-credit {
@@ -1663,6 +1813,11 @@ html, body {
 
     .floating-input-container {
         bottom: 10px;
+    }
+    
+    /* Hide floating input in fullscreen */
+    .stage-container.mode-fullscreen ~ .floating-input-container {
+        display: none !important;
     }
 }
 

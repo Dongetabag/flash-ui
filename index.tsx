@@ -24,7 +24,9 @@ import {
     ArrowRightIcon,
     ArrowUpIcon,
     GridIcon,
-    BuildIcon
+    BuildIcon,
+    CloseIcon,
+    BackIcon
 } from './components/Icons';
 import { trackAsset, trackInteraction, initTracking, sendBuildRequest } from './src/lib/tracking';
 import ChatWidget from './components/ChatWidget';
@@ -33,6 +35,7 @@ function App() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [currentSessionIndex, setCurrentSessionIndex] = useState<number>(-1);
   const [focusedArtifactIndex, setFocusedArtifactIndex] = useState<number | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState<boolean>(false); // Fullscreen mode for mobile
   
   const [inputValue, setInputValue] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -62,14 +65,25 @@ function App() {
       inputRef.current?.focus();
   }, []);
 
-  // Fix for mobile: reset scroll when focusing an item to prevent "overscroll" state
+  // Auto-enable fullscreen on mobile when artifact is focused
   useEffect(() => {
-    if (focusedArtifactIndex !== null && window.innerWidth <= 1024) {
+    const isMobile = window.innerWidth <= 1024;
+    if (focusedArtifactIndex !== null && isMobile) {
+        setIsFullscreen(true);
+        // Prevent body scroll in fullscreen
+        document.body.style.overflow = 'hidden';
         if (gridScrollRef.current) {
             gridScrollRef.current.scrollTop = 0;
         }
         window.scrollTo(0, 0);
+    } else if (focusedArtifactIndex === null) {
+        setIsFullscreen(false);
+        document.body.style.overflow = '';
     }
+    
+    return () => {
+        document.body.style.overflow = '';
+    };
   }, [focusedArtifactIndex]);
 
   // Cycle placeholders
@@ -569,7 +583,7 @@ Return ONLY RAW HTML. No markdown fences.
                 speedScale={0.5} 
             />
 
-            <div className={`stage-container ${focusedArtifactIndex !== null ? 'mode-focus' : 'mode-split'}`}>
+            <div className={`stage-container ${focusedArtifactIndex !== null ? 'mode-focus' : 'mode-split'} ${isFullscreen ? 'mode-fullscreen' : ''}`}>
                  <div className={`empty-state ${hasStarted ? 'fade-out' : ''}`}>
                      <div className="empty-content">
                          <div className="hero-badge">
@@ -713,12 +727,42 @@ Return ONLY RAW HTML. No markdown fences.
                 </button>
              )}
 
-            <div className={`action-bar ${focusedArtifactIndex !== null ? 'visible' : ''}`}>
+            {/* Fullscreen Controls for Mobile */}
+            {isFullscreen && focusedArtifactIndex !== null && (
+                <div className="fullscreen-controls">
+                    <button 
+                        className="fullscreen-exit-btn" 
+                        onClick={() => {
+                            setFocusedArtifactIndex(null);
+                            setIsFullscreen(false);
+                        }}
+                        aria-label="Exit fullscreen"
+                    >
+                        <CloseIcon />
+                    </button>
+                    <button 
+                        className="fullscreen-back-btn" 
+                        onClick={() => {
+                            setFocusedArtifactIndex(null);
+                            setIsFullscreen(false);
+                        }}
+                        aria-label="Back to grid"
+                    >
+                        <BackIcon />
+                        <span>Back</span>
+                    </button>
+                </div>
+            )}
+
+            <div className={`action-bar ${focusedArtifactIndex !== null ? 'visible' : ''} ${isFullscreen ? 'fullscreen-hidden' : ''}`}>
                  <div className="active-prompt-label">
                     {currentSession?.prompt}
                  </div>
                  <div className="action-buttons">
-                    <button onClick={() => setFocusedArtifactIndex(null)}>
+                    <button onClick={() => {
+                        setFocusedArtifactIndex(null);
+                        setIsFullscreen(false);
+                    }}>
                         <GridIcon /> Grid View
                     </button>
                     <button onClick={handleGenerateVariations} disabled={isLoading}>
