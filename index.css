@@ -45,6 +45,14 @@ html, body {
     overflow: hidden; /* Prevent window scrolling, everything is in the stage */
 }
 
+/* Mobile: Allow body scroll */
+@media (max-width: 1024px) {
+    html, body {
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 #root {
     height: 100vh;
     width: 100vw;
@@ -69,26 +77,40 @@ html, body {
     position: fixed;
     top: 24px;
     right: 24px;
-    z-index: 101; /* Above input and cards, but below drawer (200) */
+    z-index: 1000; /* Above input and cards, but below drawer (200) */
     color: var(--text-secondary);
     font-size: 0.85rem;
+    font-family: var(--font-sans);
     text-decoration: none;
     font-weight: 500;
-    opacity: 0.5;
-    transition: all 0.2s ease;
-    padding: 6px 12px;
-    border-radius: 99px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid transparent;
-    backdrop-filter: blur(4px);
+    opacity: 0.6;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 8px 16px;
+    border-radius: 12px;
+    background: rgba(26, 26, 46, 0.6);
+    border: 1px solid rgba(var(--color-primary-rgb), 0.2);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .creator-credit:hover {
     opacity: 1;
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
-    border-color: rgba(255, 255, 255, 0.1);
-    transform: translateY(1px);
+    color: var(--color-primary);
+    background: rgba(var(--color-primary-rgb), 0.1);
+    border-color: rgba(var(--color-primary-rgb), 0.4);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(var(--color-primary-rgb), 0.2);
+}
+
+/* Mobile: Better positioning with safe area support */
+@media (max-width: 1024px) {
+    .creator-credit {
+        top: max(16px, env(safe-area-inset-top, 16px));
+        right: max(16px, env(safe-area-inset-right, 16px));
+        font-size: 0.75rem;
+        padding: 6px 12px;
+        z-index: 1000;
+    }
 }
 
 /* === Stage (The Deck) === */
@@ -970,46 +992,45 @@ html, body {
         display: none !important;
     }
 
-    .creator-credit {
-        top: 16px;
-        right: 16px;
-        font-size: 0.75rem;
-        padding: 5px 10px;
-    }
-
     /* Single vertical scroll design */
     .immersive-app {
         overflow-y: auto;
         overflow-x: hidden;
         -webkit-overflow-scrolling: touch;
+        height: auto;
+        min-height: 100vh;
     }
 
     .stage-container {
         position: relative;
         min-height: 100vh;
         height: auto;
+        padding-bottom: 40px;
     }
 
     .empty-state {
         position: relative;
         min-height: 100vh;
         height: auto;
-        padding: 24px 24px 80px;
-        overflow-y: auto;
+        padding: 80px 20px 100px;
+        overflow-y: visible;
         overflow-x: hidden;
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-start;
         -webkit-overflow-scrolling: touch;
+        /* Prevent overscroll bounce on iOS */
+        overscroll-behavior: contain;
     }
 
     /* Add top margin to empty-content to push content down from nav area */
     .empty-content {
-        margin-top: 60px;
-        gap: 16px;
+        margin-top: 20px;
+        gap: 20px;
         padding: 0 16px;
         max-width: 100%;
+        width: 100%;
     }
 
     /* Show inline input on mobile */
@@ -1027,6 +1048,31 @@ html, body {
     /* Hide floating input on mobile when on empty state */
     .floating-input-container {
         display: none;
+    }
+
+    /* Fix scroll issues on mobile */
+    #root {
+        height: auto;
+        min-height: 100vh;
+        overflow: visible;
+    }
+
+    /* Prevent body scroll lock on mobile */
+    body {
+        position: relative;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior-y: contain;
+    }
+
+    /* Prevent pull-to-refresh on mobile */
+    html {
+        overscroll-behavior-y: contain;
+    }
+
+    /* Better touch targets on mobile */
+    button, a, input {
+        touch-action: manipulation;
     }
 
     .artifact-grid {
@@ -1126,12 +1172,13 @@ html, body {
 /* Mobile Large (768px and below) */
 @media (max-width: 768px) {
     .empty-state {
-        padding: 24px 24px 120px;
+        padding: 80px 20px 120px;
+        padding-top: max(80px, calc(env(safe-area-inset-top, 0px) + 60px));
     }
 
     .empty-content {
-        margin-top: 50px;
-        gap: 14px;
+        margin-top: 20px;
+        gap: 18px;
     }
 
     /* 3D Logo Tablet */
@@ -1175,12 +1222,21 @@ html, body {
     }
 
     .hero-tagline {
-        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+        font-size: clamp(1.2rem, 5vw, 1.8rem) !important;
+        margin-top: 8px;
     }
 
     .hero-subtitle {
         font-size: 0.9rem !important;
         line-height: 1.6 !important;
+        padding: 0 12px;
+    }
+
+    /* Better spacing for overview section on mobile */
+    .overview-section {
+        margin-top: 40px;
+        padding: 0 12px;
+        padding-bottom: 60px;
     }
 
     .surprise-button {
@@ -1233,15 +1289,27 @@ html, body {
 @media (max-width: 480px) {
     html, body {
         font-size: 14px;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
     }
 
     .empty-state {
-        padding: 24px 20px 130px;
+        padding: max(60px, calc(env(safe-area-inset-top, 0px) + 40px)) 16px 130px;
+        padding-bottom: calc(130px + env(safe-area-inset-bottom, 0px));
     }
 
     .empty-content {
-        margin-top: 40px;
-        gap: 12px;
+        margin-top: 20px;
+        gap: 16px;
+        padding: 0 12px;
+    }
+
+    /* Fix header positioning on small mobile */
+    .creator-credit {
+        top: max(12px, env(safe-area-inset-top, 12px));
+        right: max(12px, env(safe-area-inset-right, 12px));
+        font-size: 0.7rem;
+        padding: 5px 10px;
     }
 
     /* 3D Logo Small Mobile */
