@@ -53,35 +53,32 @@ const LoadingSpinner = () => (
     </svg>
 );
 
+// Default greeting message
+const getGreetingMessage = (styleName?: string): ChatMessage => ({
+    role: 'assistant',
+    content: styleName 
+        ? `Hi! I'm your AISim build assistant. I see you're interested in building "${styleName}". How can I help you today?\n\n• Build timeline and process\n• Pricing and payment options\n• Customization possibilities\n• Technical requirements`
+        : `Hi! I'm your AISim build assistant. I'm here to help you bring your design to life.\n\nWhat would you like to know? You can ask about:\n• Our build process\n• Pricing and timelines\n• Customization options`,
+    timestamp: new Date().toISOString()
+});
+
 export default function ChatWidget({ assetId, buildData, onClose }: ChatWidgetProps) {
+    // Initialize with greeting message
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [messages, setMessages] = useState<ChatMessage[]>([getGreetingMessage()]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
     const [leadId, setLeadId] = useState<string | null>(null);
-    const [hasInitialized, setHasInitialized] = useState(false);
     const prevAssetIdRef = useRef<string | undefined>(undefined);
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement>(null);
 
-    // Initialize with welcome message when opened
-    const initializeChat = (withBuildData?: typeof buildData) => {
-        const welcomeMessage: ChatMessage = {
-            role: 'assistant',
-            content: withBuildData?.styleName 
-                ? `Hi! I'm your AISim build assistant. I see you're interested in building "${withBuildData.styleName}". How can I help you today?\n\n• Build timeline and process\n• Pricing and payment options\n• Customization possibilities\n• Technical requirements`
-                : `Hi! I'm your AISim build assistant. I'm here to help you bring your design to life.\n\nWhat would you like to know? You can ask about:\n• Our build process\n• Pricing and timelines\n• Customization options`,
-            timestamp: new Date().toISOString()
-        };
-        setMessages([welcomeMessage]);
-        setHasInitialized(true);
-    };
-
-    // Auto-open when assetId changes (Build This clicked)
+    // Auto-open when assetId changes (Build This clicked) and update greeting
     useEffect(() => {
         if (assetId && assetId !== prevAssetIdRef.current) {
             setIsOpen(true);
-            initializeChat(buildData);
+            // Update with build-specific greeting
+            setMessages([getGreetingMessage(buildData?.styleName)]);
             // Track the build request
             trackInteraction({
                 assetId,
@@ -220,14 +217,14 @@ When the user is ready to proceed, you can mention the checkout process.`;
     };
 
     const handleCheckout = async () => {
-        if (!assetId) return;
-
-        // Track checkout click
-        trackInteraction({
-            assetId,
-            type: 'click',
-            data: { action: 'proceed_to_checkout' }
-        }).catch(() => {});
+        // Track checkout click if we have an assetId
+        if (assetId) {
+            trackInteraction({
+                assetId,
+                type: 'click',
+                data: { action: 'proceed_to_checkout' }
+            }).catch(() => {});
+        }
 
         // Store HTML content in sessionStorage for the contact form
         if (buildData?.htmlContent) {
@@ -242,18 +239,13 @@ When the user is ready to proceed, you can mention the checkout process.`;
         if (buildData?.styleName) params.set('style', encodeURIComponent(buildData.styleName));
         if (buildData?.sessionId) params.set('session', buildData.sessionId);
 
-        // Redirect to contact form
+        // Always redirect to contact form
         window.location.href = `/contact.html?${params.toString()}`;
     };
 
     const toggleWidget = () => {
         const willOpen = !isOpen;
         setIsOpen(willOpen);
-        
-        // Initialize chat with greeting when opening for the first time
-        if (willOpen && !hasInitialized) {
-            initializeChat(buildData);
-        }
         
         if (willOpen && assetId) {
             trackInteraction({
