@@ -1,14 +1,27 @@
 /**
- * Build This - AISim Brand Vitreous Chat Widget
- * Premium $50 deposit checkout with glassmorphic design
+ * AISim AI Chat Agent - Conversational AI assistant for build inquiries
  */
 
 import React, { useState, useRef, useEffect } from 'react';
-import { sendChatMessage, trackInteraction, createCheckout } from '../src/lib/tracking';
+import { GoogleGenAI } from '@google/genai';
+import { trackInteraction } from '../src/lib/tracking';
 
 interface ChatWidgetProps {
     assetId?: string;
+    buildData?: {
+        buildId?: string;
+        prompt?: string;
+        styleName?: string;
+        htmlContent?: string;
+        sessionId?: string;
+    };
     onClose?: () => void;
+}
+
+interface ChatMessage {
+    role: 'user' | 'assistant';
+    content: string;
+    timestamp: string;
 }
 
 const BuildIcon = () => (
@@ -26,110 +39,189 @@ const CloseIcon = () => (
     </svg>
 );
 
-const CheckIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-        <polyline points="20 6 9 17 4 12" />
-    </svg>
-);
-
-const LoadingSpinner = () => (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
-        <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm0 18a8 8 0 110-16 8 8 0 010 16z" opacity=".3"/>
-        <path d="M20 12h2A10 10 0 0012 2v2a8 8 0 018 8z"/>
-    </svg>
-);
-
 const SendIcon = () => (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <line x1="22" y1="2" x2="11" y2="13"></line>
         <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
     </svg>
 );
 
-export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
+const LoadingSpinner = () => (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin">
+        <circle cx="12" cy="12" r="10" opacity="0.3"/>
+        <path d="M12 2a10 10 0 0 1 10 10" strokeLinecap="round"/>
+    </svg>
+);
+
+export default function ChatWidget({ assetId, buildData, onClose }: ChatWidgetProps) {
     const [isOpen, setIsOpen] = useState(false);
-    const [email, setEmail] = useState('');
+    const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [leadId, setLeadId] = useState<string | null>(null);
     const prevAssetIdRef = useRef<string | undefined>(undefined);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
+    const inputRef = useRef<HTMLInputElement>(null);
 
     // Auto-open when assetId changes (Build This clicked)
     useEffect(() => {
         if (assetId && assetId !== prevAssetIdRef.current) {
             setIsOpen(true);
-            setError(null);
+            // Initialize with welcome message
+            const welcomeMessage: ChatMessage = {
+                role: 'assistant',
+                content: buildData?.styleName 
+                    ? `Hi! I'm your AISim build assistant. I see you're interested in building "${buildData.styleName}". How can I help you today? You can ask me about:\n\n• Build timeline and process\n• Pricing and payment options\n• Customization possibilities\n• Technical requirements\n• Or anything else about your project!`
+                    : `Hi! I'm your AISim build assistant. I'm here to help you bring your design to life. What would you like to know about building your project?`,
+                timestamp: new Date().toISOString()
+            };
+            setMessages([welcomeMessage]);
             // Track the build request
             trackInteraction({
                 assetId,
                 type: 'request_build',
-                data: { action: 'build_modal_opened' }
+                data: { action: 'chat_agent_opened' }
             }).catch(() => {});
         }
         prevAssetIdRef.current = assetId;
-    }, [assetId]);
+    }, [assetId, buildData]);
 
-    const handleCheckout = async () => {
-        if (!email.trim()) {
-            setError('Please enter your email');
-            return;
-        }
-        if (!email.includes('@')) {
-            setError('Please enter a valid email');
-            return;
-        }
-        if (!assetId) {
-            setError('No design selected');
-            return;
-        }
+    // Auto-scroll to bottom when messages change
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }, [messages, isLoading]);
 
+    // Focus input when opened
+    useEffect(() => {
+        if (isOpen) {
+            setTimeout(() => inputRef.current?.focus(), 100);
+        }
+    }, [isOpen]);
+
+    const handleSendMessage = async () => {
+        if (!inputValue.trim() || isLoading || !assetId) return;
+
+        const userMessage: ChatMessage = {
+            role: 'user',
+            content: inputValue.trim(),
+            timestamp: new Date().toISOString()
+        };
+
+        setMessages(prev => [...prev, userMessage]);
+        setInputValue('');
         setIsLoading(true);
-        setError(null);
 
         try {
-            // First create/update lead with email
-            const chatResponse = await sendChatMessage({
-                assetId,
-                message: `I want to build this design. My email is ${email}`,
-                leadId: leadId || undefined,
-                email: email.trim()
+            const apiKey = import.meta.env.VITE_GEMINI_API_KEY || process.env.API_KEY;
+            if (!apiKey) {
+                throw new Error('API key not configured');
+            }
+
+            const ai = new GoogleGenAI({ apiKey });
+
+            // Build system prompt with context
+            const systemPrompt = `You are an AI assistant for AISim, a company that builds custom web applications and UI components. 
+
+Context about the current build:
+${buildData?.styleName ? `- Design Name: ${buildData.styleName}` : ''}
+${buildData?.prompt ? `- Original Prompt: ${buildData.prompt}` : ''}
+${buildData?.buildId ? `- Build ID: ${buildData.buildId}` : ''}
+
+Your role:
+- Help users understand the build process
+- Answer questions about pricing (starting at $50 deposit, applied to total)
+- Explain customization options
+- Discuss timelines and next steps
+- Guide them toward checkout when ready
+- Be friendly, professional, and helpful
+- Keep responses concise (2-3 sentences when possible)
+
+When the user is ready to proceed, you can mention the checkout process.`;
+
+            // Build conversation history
+            const conversationHistory = messages.map(msg => ({
+                role: msg.role === 'user' ? 'user' : 'model',
+                parts: [{ text: msg.content }]
+            }));
+
+            // Add current user message
+            conversationHistory.push({
+                role: 'user',
+                parts: [{ text: userMessage.content }]
             });
 
-            if (chatResponse?.leadId) {
-                setLeadId(chatResponse.leadId);
-
-                // Track checkout initiation
-                trackInteraction({
-                    assetId,
-                    type: 'click',
-                    data: { action: 'checkout_initiated', email: email.trim() }
-                }).catch(() => {});
-
-                // Create checkout session
-                const checkoutUrl = await createCheckout(chatResponse.leadId, assetId);
-
-                if (checkoutUrl) {
-                    // Redirect to Stripe checkout
-                    window.location.href = checkoutUrl;
-                } else {
-                    setError('Unable to create checkout. Please try again.');
+            // Generate AI response
+            const response = await ai.models.generateContent({
+                model: 'gemini-3-flash-preview',
+                contents: conversationHistory,
+                config: {
+                    systemInstruction: systemPrompt
                 }
-            } else {
-                setError('Unable to process request. Please try again.');
-            }
-        } catch (err) {
-            console.error('Checkout error:', err);
-            setError('Something went wrong. Please try again.');
+            });
+
+            const assistantMessage: ChatMessage = {
+                role: 'assistant',
+                content: response.text || 'I apologize, I was unable to generate a response. Please try again.',
+                timestamp: new Date().toISOString()
+            };
+
+            setMessages(prev => [...prev, assistantMessage]);
+
+            // Track interaction
+            trackInteraction({
+                assetId,
+                type: 'chat_message',
+                data: { 
+                    message: userMessage.content,
+                    responseLength: assistantMessage.content.length
+                }
+            }).catch(() => {});
+
+        } catch (error) {
+            console.error('AI chat error:', error);
+            const errorMessage: ChatMessage = {
+                role: 'assistant',
+                content: 'I encountered an error processing your message. Please try again, or you can proceed directly to checkout to start your build.',
+                timestamp: new Date().toISOString()
+            };
+            setMessages(prev => [...prev, errorMessage]);
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleKeyDown = (e: React.KeyboardEvent) => {
-        if (e.key === 'Enter' && !isLoading) {
+        if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleCheckout();
+            handleSendMessage();
         }
+    };
+
+    const handleCheckout = async () => {
+        if (!assetId) return;
+
+        // Track checkout click
+        trackInteraction({
+            assetId,
+            type: 'click',
+            data: { action: 'proceed_to_checkout' }
+        }).catch(() => {});
+
+        // Store HTML content in sessionStorage for the contact form
+        if (buildData?.htmlContent) {
+            sessionStorage.setItem('aisim_build_html', buildData.htmlContent);
+        }
+
+        // Build URL parameters
+        const params = new URLSearchParams();
+        if (buildData?.buildId) params.set('buildId', buildData.buildId);
+        if (assetId) params.set('assetId', assetId);
+        if (buildData?.prompt) params.set('prompt', buildData.prompt.substring(0, 200));
+        if (buildData?.styleName) params.set('style', buildData.styleName);
+        if (buildData?.sessionId) params.set('session', buildData.sessionId);
+
+        // Redirect to contact form
+        window.location.href = `/contact.html?${params.toString()}`;
     };
 
     const toggleWidget = () => {
@@ -138,7 +230,7 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
             trackInteraction({
                 assetId,
                 type: 'click',
-                data: { action: 'build_widget_opened' }
+                data: { action: 'chat_widget_opened' }
             }).catch(() => {});
         }
     };
@@ -152,6 +244,7 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
+
                 .spin {
                     animation: spin 1s linear infinite;
                 }
@@ -249,8 +342,11 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                     -webkit-backdrop-filter: blur(32px) saturate(180%);
                     border-radius: 32px;
                     width: 100%;
-                    max-width: 440px;
+                    max-width: 500px;
+                    max-height: 90vh;
                     overflow: hidden;
+                    display: flex;
+                    flex-direction: column;
                     box-shadow:
                         0 20px 50px rgba(0, 0, 0, 0.5),
                         inset 0 0 0 1px rgba(255, 255, 255, 0.05);
@@ -280,42 +376,44 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                 }
 
                 .aisim-header {
-                    padding: 32px 32px 24px;
+                    padding: 24px 24px 20px;
                     background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
                     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
                     display: flex;
                     justify-content: space-between;
-                    align-items: flex-start;
+                    align-items: center;
+                    flex-shrink: 0;
                 }
 
                 .aisim-header-content h2 {
                     font-family: 'Inter', -apple-system, sans-serif;
-                    font-size: 1.1rem;
+                    font-size: 1rem;
                     font-weight: 800;
                     letter-spacing: -0.02em;
                     color: #f8fafc;
                     text-transform: uppercase;
-                    margin: 0 0 8px;
+                    margin: 0;
                 }
 
                 .aisim-status-row {
                     display: flex;
                     align-items: center;
-                    gap: 12px;
+                    gap: 8px;
+                    margin-top: 6px;
                 }
 
                 .aisim-status-dot {
-                    width: 8px;
-                    height: 8px;
+                    width: 6px;
+                    height: 6px;
                     background: #ff9f0a;
                     border-radius: 50%;
-                    box-shadow: 0 0 15px #ff9f0a, 0 0 30px rgba(255, 159, 10, 0.5);
+                    box-shadow: 0 0 10px #ff9f0a;
                     animation: pulse 2s infinite;
                 }
 
                 .aisim-mono-label {
                     font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.65rem;
+                    font-size: 0.6rem;
                     color: #94a3b8;
                     text-transform: uppercase;
                     letter-spacing: 0.1em;
@@ -340,188 +438,150 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                     border-color: rgba(255, 255, 255, 0.2);
                 }
 
-                .aisim-content {
-                    padding: 32px;
-                }
-
-                .aisim-price-card {
-                    background: linear-gradient(135deg, rgba(255, 159, 10, 0.1) 0%, rgba(255, 184, 64, 0.08) 50%, rgba(255, 208, 128, 0.1) 100%);
-                    border: 1px solid rgba(255, 159, 10, 0.25);
-                    border-radius: 20px;
-                    padding: 32px;
-                    text-align: center;
-                    margin-bottom: 28px;
-                    position: relative;
-                    overflow: hidden;
-                }
-
-                .aisim-price-card::before {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    height: 2px;
-                    background: linear-gradient(90deg, transparent, #ff9f0a, #ffb840, #ffd080, transparent);
-                }
-
-                .aisim-price-card::after {
-                    content: '';
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    right: 0;
-                    height: 1px;
-                    background: linear-gradient(90deg, transparent, rgba(255, 208, 128, 0.3), transparent);
-                }
-
-                .aisim-price {
-                    font-family: 'Inter', sans-serif;
-                    font-size: 56px;
-                    font-weight: 800;
-                    background: linear-gradient(135deg, #ff9f0a 0%, #ffb840 50%, #ffd080 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    margin: 0;
-                    line-height: 1;
-                    text-shadow: 0 0 40px rgba(255, 159, 10, 0.3);
-                }
-
-                .aisim-price-label {
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.7rem;
-                    color: #94a3b8;
-                    margin: 12px 0 0;
-                    text-transform: uppercase;
-                    letter-spacing: 0.1em;
-                }
-
-                .aisim-features {
-                    list-style: none;
-                    padding: 0;
-                    margin: 0 0 28px;
-                }
-                .aisim-features li {
+                .aisim-chat-container {
+                    flex: 1;
+                    overflow-y: auto;
+                    padding: 24px;
                     display: flex;
-                    align-items: center;
-                    gap: 14px;
-                    padding: 12px 0;
-                    color: #f8fafc;
+                    flex-direction: column;
+                    gap: 16px;
+                    min-height: 0;
+                }
+
+                .aisim-message {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 6px;
+                    animation: entryReveal 0.3s ease-out;
+                }
+
+                .aisim-message.user {
+                    align-items: flex-end;
+                }
+
+                .aisim-message.assistant {
+                    align-items: flex-start;
+                }
+
+                .aisim-message-bubble {
+                    max-width: 80%;
+                    padding: 12px 16px;
+                    border-radius: 16px;
                     font-family: 'Inter', sans-serif;
-                    font-size: 0.88rem;
-                    font-weight: 300;
-                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+                    font-size: 0.9rem;
+                    line-height: 1.5;
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
                 }
-                .aisim-features li:last-child {
-                    border-bottom: none;
+
+                .aisim-message.user .aisim-message-bubble {
+                    background: linear-gradient(135deg, #ff9f0a 0%, #ffb840 100%);
+                    color: #0f0f1a;
+                    border-bottom-right-radius: 4px;
                 }
-                .aisim-features li svg {
-                    color: #ff9f0a;
-                    flex-shrink: 0;
-                    filter: drop-shadow(0 0 6px rgba(255, 159, 10, 0.5));
+
+                .aisim-message.assistant .aisim-message-bubble {
+                    background: rgba(255, 255, 255, 0.08);
+                    color: #f8fafc;
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-bottom-left-radius: 4px;
                 }
 
                 .aisim-input-container {
-                    position: relative;
+                    padding: 16px 24px 20px;
+                    border-top: 1px solid rgba(255, 255, 255, 0.08);
+                    background: linear-gradient(0deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+                    flex-shrink: 0;
+                }
+
+                .aisim-input-wrapper {
+                    display: flex;
+                    gap: 8px;
+                    align-items: center;
                     background: rgba(0, 0, 0, 0.3);
                     border: 1px solid rgba(255, 255, 255, 0.1);
                     border-radius: 16px;
-                    padding: 4px;
+                    padding: 4px 4px 4px 16px;
                     transition: all 0.3s ease;
-                    display: flex;
-                    align-items: center;
-                    margin-bottom: 8px;
-                }
-                .aisim-input-container:focus-within {
-                    border-color: #ff9f0a;
-                    box-shadow: 0 0 30px rgba(255, 159, 10, 0.2), 0 0 60px rgba(255, 208, 128, 0.1);
                 }
 
-                .aisim-email-input {
+                .aisim-input-wrapper:focus-within {
+                    border-color: #ff9f0a;
+                    box-shadow: 0 0 20px rgba(255, 159, 10, 0.2);
+                }
+
+                .aisim-input {
+                    flex: 1;
                     background: transparent;
                     border: none;
                     outline: none;
                     color: #f8fafc;
-                    padding: 14px 16px;
-                    flex: 1;
                     font-family: 'Inter', sans-serif;
                     font-size: 0.9rem;
+                    padding: 10px 0;
                 }
-                .aisim-email-input::placeholder {
+
+                .aisim-input::placeholder {
                     color: #64748b;
                 }
 
-                .aisim-error {
-                    font-family: 'JetBrains Mono', monospace;
-                    color: #f87171;
-                    font-size: 0.7rem;
-                    margin: 8px 0 0 4px;
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
+                .aisim-send-btn {
+                    background: linear-gradient(135deg, #ff9f0a 0%, #ffb840 100%);
+                    border: none;
+                    border-radius: 12px;
+                    width: 36px;
+                    height: 36px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    cursor: pointer;
+                    color: #0f0f1a;
+                    transition: all 0.2s;
+                    flex-shrink: 0;
+                }
+
+                .aisim-send-btn:hover:not(:disabled) {
+                    transform: scale(1.05);
+                    box-shadow: 0 0 20px rgba(255, 159, 10, 0.4);
+                }
+
+                .aisim-send-btn:disabled {
+                    opacity: 0.5;
+                    cursor: not-allowed;
                 }
 
                 .aisim-checkout-btn {
                     width: 100%;
                     background: linear-gradient(135deg, #ff9f0a 0%, #ffb840 40%, #ffd080 100%);
-                    background-size: 200% 100%;
                     border: none;
-                    border-radius: 16px;
-                    padding: 18px 24px;
+                    border-radius: 12px;
+                    padding: 12px 20px;
                     color: #0f0f1a;
                     font-family: 'Inter', sans-serif;
-                    font-size: 0.95rem;
+                    font-size: 0.85rem;
                     font-weight: 700;
                     cursor: pointer;
-                    margin-top: 16px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    gap: 10px;
-                    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+                    margin-top: 12px;
+                    transition: all 0.3s;
                     text-transform: uppercase;
-                    letter-spacing: 0.08em;
-                    box-shadow: 0 4px 20px rgba(255, 159, 10, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-                }
-                .aisim-checkout-btn:hover:not(:disabled) {
-                    transform: translateY(-2px);
-                    box-shadow: 0 12px 40px rgba(255, 159, 10, 0.4), 0 0 60px rgba(255, 208, 128, 0.2);
-                    background-position: 100% 0;
-                }
-                .aisim-checkout-btn:disabled {
-                    opacity: 0.5;
-                    cursor: not-allowed;
-                }
-
-                .aisim-footer {
-                    padding: 20px 32px 28px;
-                    text-align: center;
-                    background: linear-gradient(0deg, rgba(255,255,255,0.02) 0%, transparent 100%);
-                }
-                .aisim-footer p {
-                    font-family: 'JetBrains Mono', monospace;
-                    font-size: 0.6rem;
-                    color: #64748b;
-                    margin: 0;
                     letter-spacing: 0.05em;
                 }
-                .aisim-footer a {
-                    color: #94a3b8;
-                    text-decoration: underline;
-                    text-underline-offset: 2px;
+
+                .aisim-checkout-btn:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 8px 30px rgba(255, 159, 10, 0.4);
                 }
 
                 @media (max-width: 480px) {
                     .aisim-modal {
                         max-width: 100%;
-                        border-radius: 32px 32px 0 0;
+                        max-height: 100vh;
+                        border-radius: 0;
                         position: fixed;
-                        bottom: 0;
-                        left: 0;
-                        right: 0;
+                        inset: 0;
                     }
                     .aisim-overlay {
-                        align-items: flex-end;
+                        align-items: stretch;
                         padding: 0;
                     }
                     .aisim-trigger {
@@ -534,7 +594,7 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
             <button
                 className={`aisim-trigger ${assetId ? 'has-asset' : ''}`}
                 onClick={toggleWidget}
-                aria-label="Build your design"
+                aria-label="Chat with AI assistant"
             >
                 <BuildIcon />
             </button>
@@ -547,10 +607,10 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                     <div className="aisim-modal" onClick={e => e.stopPropagation()}>
                         <header className="aisim-header">
                             <div className="aisim-header-content">
-                                <h2>Build Your Design</h2>
+                                <h2>AISim AI Assistant</h2>
                                 <div className="aisim-status-row">
                                     <div className="aisim-status-dot"></div>
-                                    <span className="aisim-mono-label">System Active // Ready to Build</span>
+                                    <span className="aisim-mono-label">Online // Ready to Help</span>
                                 </div>
                             </div>
                             <button className="aisim-close" onClick={() => setIsOpen(false)}>
@@ -558,81 +618,51 @@ export default function ChatWidget({ assetId, onClose }: ChatWidgetProps) {
                             </button>
                         </header>
 
-                        <div className="aisim-content">
-                            <div className="aisim-price-card">
-                                <p className="aisim-price">$50</p>
-                                <p className="aisim-price-label">Build Deposit // Applies to Total</p>
-                            </div>
+                        <div className="aisim-chat-container">
+                            {messages.map((message, index) => (
+                                <div key={index} className={`aisim-message ${message.role}`}>
+                                    <div className="aisim-message-bubble">
+                                        {message.content}
+                                    </div>
+                                </div>
+                            ))}
+                            {isLoading && (
+                                <div className="aisim-message assistant">
+                                    <div className="aisim-message-bubble">
+                                        <LoadingSpinner />
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={messagesEndRef} />
+                        </div>
 
-                            <ul className="aisim-features">
-                                <li>
-                                    <CheckIcon />
-                                    Professional code conversion
-                                </li>
-                                <li>
-                                    <CheckIcon />
-                                    Mobile responsive design
-                                </li>
-                                <li>
-                                    <CheckIcon />
-                                    1-on-1 consultation call
-                                </li>
-                                <li>
-                                    <CheckIcon />
-                                    Full source code ownership
-                                </li>
-                                <li>
-                                    <CheckIcon />
-                                    100% refundable guarantee
-                                </li>
-                            </ul>
-
-                            <div className="aisim-input-container">
+                        <div className="aisim-input-container">
+                            <div className="aisim-input-wrapper">
                                 <input
-                                    type="email"
-                                    className="aisim-email-input"
-                                    placeholder="Enter your email..."
-                                    value={email}
-                                    onChange={(e) => {
-                                        setEmail(e.target.value);
-                                        setError(null);
-                                    }}
+                                    ref={inputRef}
+                                    type="text"
+                                    className="aisim-input"
+                                    placeholder="Ask me anything about your build..."
+                                    value={inputValue}
+                                    onChange={(e) => setInputValue(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     disabled={isLoading}
                                 />
                                 <button
-                                    className="aisim-close"
-                                    style={{ background: 'transparent', border: 'none' }}
-                                    onClick={handleCheckout}
-                                    disabled={isLoading || !email.trim()}
+                                    className="aisim-send-btn"
+                                    onClick={handleSendMessage}
+                                    disabled={!inputValue.trim() || isLoading}
                                 >
                                     {isLoading ? <LoadingSpinner /> : <SendIcon />}
                                 </button>
                             </div>
-                            {error && <p className="aisim-error">{error}</p>}
-
                             <button
                                 className="aisim-checkout-btn"
                                 onClick={handleCheckout}
-                                disabled={isLoading || !email.trim()}
                             >
-                                {isLoading ? (
-                                    <>
-                                        <LoadingSpinner />
-                                        Processing...
-                                    </>
-                                ) : (
-                                    <>
-                                        <BuildIcon />
-                                        Pay $50 Deposit
-                                    </>
-                                )}
+                                Proceed to Checkout →
                             </button>
                         </div>
-
-                        <footer className="aisim-footer">
-                            <p>Secure payment via Stripe // <a href="/terms">Terms</a></p>
-                        </footer>
                     </div>
                 </div>
             )}

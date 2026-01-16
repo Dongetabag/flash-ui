@@ -52,6 +52,13 @@ function App() {
   const [componentVariations, setComponentVariations] = useState<ComponentVariation[]>([]);
   const [trackedAssetIds, setTrackedAssetIds] = useState<Map<string, string>>(new Map()); // Maps artifact ID to tracking asset ID
   const [activeChatAssetId, setActiveChatAssetId] = useState<string | null>(null); // For chat widget context
+  const [activeBuildData, setActiveBuildData] = useState<{
+      buildId?: string;
+      prompt?: string;
+      styleName?: string;
+      htmlContent?: string;
+      sessionId?: string;
+  } | null>(null); // Build data for chat widget
 
   const inputRef = useRef<HTMLInputElement>(null);
   const gridScrollRef = useRef<HTMLDivElement>(null);
@@ -280,19 +287,34 @@ Required JSON Output Format (stream ONE object per line):
           await trackInteraction({
               assetId: trackingAssetId,
               type: 'request_build',
-              data: { 
+              data: {
                   styleName: artifact.styleName,
                   prompt: currentSession.prompt,
                   buildId: buildResult?.buildId
               }
           }).catch(() => {});
 
+          // Set the build data for the chat widget
+          setActiveBuildData({
+              buildId: buildResult?.buildId,
+              prompt: currentSession.prompt,
+              styleName: artifact.styleName,
+              htmlContent: artifact.html,
+              sessionId: trackingAssetId
+          });
+
           // Set the active asset for the chat widget (will open checkout)
           setActiveChatAssetId(trackingAssetId);
-          
+
       } catch (error) {
           console.error('Error initiating build:', error);
-          // Still open the chat widget even if backend call fails
+          // Still set build data and open the chat widget even if backend call fails
+          setActiveBuildData({
+              prompt: currentSession.prompt,
+              styleName: artifact.styleName,
+              htmlContent: artifact.html,
+              sessionId: trackingAssetId
+          });
           setActiveChatAssetId(trackingAssetId);
       }
   };
@@ -808,7 +830,7 @@ Return ONLY RAW HTML. No markdown fences.
         </div>
 
         {/* Lead Capture Chat Widget */}
-        <ChatWidget assetId={activeChatAssetId || undefined} />
+        <ChatWidget assetId={activeChatAssetId || undefined} buildData={activeBuildData || undefined} />
     </>
   );
 }

@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AISim | Build Inquiry</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --aisim-orange: #ff9f0a;
+            --aisim-gold: #ffb840;
+            --aisim-cream: #ffd080;
+            --aisim-deep: #1a0f00;
+            --void-bg: #0a0a0f;
+            --slate-dark: #0f1419;
+            --slate-mid: #1e293b;
+            --text-primary: #f8fafc;
+            --text-muted: #94a3b8;
+            --text-dim: #64748b;
+            --grain: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--void-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* Grain Texture Overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--grain);
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* Caustic Background Animation */
+        .caustic-bg {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            z-index: 0;
+            filter: blur(120px);
+            opacity: 0.4;
+        }
+
+        .caustic-layer {
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            top: -50%;
+            left: -50%;
+            background: conic-gradient(
+                from 180deg at 50% 50%,
+                transparent 0deg,
+                rgba(255, 159, 10, 0.4) 60deg,
+                rgba(255, 184, 64, 0.3) 120deg,
+                rgba(255, 208, 128, 0.3) 180deg,
+                rgba(255, 159, 10, 0.2) 240deg,
+                transparent 360deg
+            );
+            animation: rotateCaustic 30s linear infinite;
+        }
+
+        @keyframes rotateCaustic {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 1200px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* System Label */
+        .system-label {
+            position: absolute;
+            top: -50px;
+            left: 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--aisim-orange);
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .system-label::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--aisim-orange);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--aisim-orange);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.3); }
+        }
+
+        /* Typography */
+        h1 {
+            grid-column: 1 / span 10;
+            font-size: clamp(2.5rem, 8vw, 6rem);
+            font-weight: 900;
+            line-height: 0.9;
+            text-transform: uppercase;
+            color: transparent;
+            -webkit-text-stroke: 1px var(--slate-mid);
+            margin-bottom: 50px;
+            letter-spacing: -0.03em;
+        }
+
+        h1 .filled {
+            color: transparent;
+            -webkit-text-stroke: 0;
+            background: linear-gradient(135deg, var(--aisim-orange) 0%, var(--aisim-gold) 40%, var(--aisim-cream) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: block;
+            text-shadow: 0 0 60px rgba(255, 159, 10, 0.3);
+        }
+
+        /* Form Masonry Grid */
+        .contact-form {
+            grid-column: 1 / -1;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-auto-rows: minmax(140px, auto);
+            gap: 1px;
+            background: var(--slate-mid);
+            border: 1px solid var(--slate-mid);
+            border-radius: 24px;
+            overflow: hidden;
+            transform: translateY(30px);
+            opacity: 0;
+            animation: slideUp 0.8s forwards 0.2s;
+        }
+
+        @keyframes slideUp {
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .form-block {
+            background: var(--slate-dark);
+            padding: 28px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .form-block:hover {
+            background: #141a22;
+        }
+
+        .form-block.span-2 { grid-column: span 2; }
+        .form-block.span-3 { grid-column: span 3; }
+        .form-block.span-4 { grid-column: span 4; }
+        .form-block.high { grid-row: span 2; }
+
+        /* Orange Accent Top Border */
+        .form-block::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--aisim-deep), var(--slate-mid));
+            transition: all 0.4s ease;
+        }
+
+        .form-block:hover::after {
+            background: linear-gradient(90deg, var(--aisim-orange), var(--aisim-gold));
+            height: 4px;
+            box-shadow: 0 0 20px rgba(255, 159, 10, 0.5);
+        }
+
+        .label-wrap {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 12px;
+        }
+
+        label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--aisim-orange);
+        }
+
+        .index {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+        }
+
+        input, textarea, select {
+            width: 100%;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 300;
+            padding: 8px 0;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            transform: translateX(8px);
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: var(--text-dim);
+        }
+
+        textarea {
+            resize: none;
+            height: 100%;
+            min-height: 120px;
+        }
+
+        select {
+            cursor: pointer;
+            appearance: none;
+            background: transparent;
+        }
+
+        select option {
+            background: var(--slate-dark);
+            color: var(--text-primary);
+        }
+
+        /* Info Block */
+        .info-block {
+            background: linear-gradient(135deg, rgba(255, 159, 10, 0.1) 0%, rgba(255, 184, 64, 0.05) 100%);
+            border-right: 3px solid var(--aisim-orange);
+        }
+
+        .info-block .info-content {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 10px;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        .info-block .info-highlight {
+            color: var(--aisim-orange);
+            font-weight: 500;
+        }
+
+        /* Price Display Block */
+        .price-block {
+            background: linear-gradient(135deg, rgba(255, 159, 10, 0.15) 0%, rgba(255, 184, 64, 0.08) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .price-amount {
+            font-family: 'Inter', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, var(--aisim-orange) 0%, var(--aisim-gold) 50%, var(--aisim-cream) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1;
+            text-shadow: 0 0 40px rgba(255, 159, 10, 0.4);
+        }
+
+        .price-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            margin-top: 8px;
+        }
+
+        /* Submit Block */
+        .submit-block {
+            background: linear-gradient(135deg, var(--aisim-orange) 0%, var(--aisim-gold) 50%, var(--aisim-cream) 100%);
+            background-size: 200% 100%;
+            grid-column: span 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            cursor: pointer;
+            border: none;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-block::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+            transform: translateX(-100%);
+            transition: transform 0.6s;
+        }
+
+        .submit-block:hover::before {
+            transform: translateX(100%);
+        }
+
+        .submit-block:hover {
+            background-position: 100% 0;
+            transform: scale(1.02);
+            box-shadow: 0 20px 60px rgba(255, 159, 10, 0.4);
+        }
+
+        .submit-block:hover::after {
+            display: none;
+        }
+
+        .submit-block span {
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 1.2rem;
+            text-transform: uppercase;
+            color: var(--void-bg);
+            letter-spacing: 0.1em;
+            transform: rotate(-90deg);
+            white-space: nowrap;
+        }
+
+        /* Hidden Design Data */
+        #designData {
+            display: none;
+        }
+
+        /* Success State */
+        .success-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(10, 10, 15, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s;
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .success-content {
+            text-align: center;
+            transform: scale(0.9);
+            transition: transform 0.4s;
+        }
+
+        .success-overlay.active .success-content {
+            transform: scale(1);
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--aisim-orange), var(--aisim-gold));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            box-shadow: 0 0 60px rgba(255, 159, 10, 0.5);
+        }
+
+        .success-icon svg {
+            width: 40px;
+            height: 40px;
+            color: var(--void-bg);
+        }
+
+        .success-title {
+            font-size: 2rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, var(--aisim-orange), var(--aisim-cream));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 12px;
+        }
+
+        .success-message {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 400px;
+            line-height: 1.6;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .contact-form {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .form-block.span-3, .form-block.span-4 {
+                grid-column: span 2;
+            }
+            h1 { grid-column: 1 / -1; }
+        }
+
+        @media (max-width: 640px) {
+            .contact-form {
+                grid-template-columns: 1fr;
+            }
+            .form-block.span-2, .form-block.span-3, .form-block.span-4 {
+                grid-column: span 1;
+            }
+            .submit-block {
+                height: 80px;
+            }
+            .submit-block span {
+                transform: rotate(0);
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            .price-amount {
+                font-size: 2.5rem;
+            }
+        }
+
+        /* Reveal Animation */
+        .reveal-item {
+            opacity: 0;
+            animation: fadeIn 0.8s forwards;
+        }
+
+        @keyframes fadeIn {
+            to { opacity: 1; }
+        }
+
+        /* Loading state */
+        .loading .submit-block span {
+            animation: loadingPulse 1.5s infinite;
+        }
+
+        @keyframes loadingPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="caustic-bg">
+        <div class="caustic-layer"></div>
+    </div>
+
+    <div class="container">
+        <div class="system-label">AISim Build System // Active</div>
+
+        <h1>
+            Build <span class="filled">Your Vision</span>
+        </h1>
+
+        <form class="contact-form" id="buildForm">
+            <!-- Name Block -->
+            <div class="form-block span-2">
+                <div class="label-wrap">
+                    <label>Identity</label>
+                    <span class="index">01</span>
+                </div>
+                <input type="text" name="name" placeholder="Your Full Name" required>
+            </div>
+
+            <!-- Email Block -->
+            <div class="form-block span-2">
+                <div class="label-wrap">
+                    <label>Signal</label>
+                    <span class="index">02</span>
+                </div>
+                <input type="email" name="email" placeholder="your@email.com" required>
+            </div>
+
+            <!-- Company Block -->
+            <div class="form-block span-2">
+                <div class="label-wrap">
+                    <label>Organization</label>
+                    <span class="index">03</span>
+                </div>
+                <input type="text" name="company" placeholder="Company / Project Name">
+            </div>
+
+            <!-- Budget Block -->
+            <div class="form-block span-2">
+                <div class="label-wrap">
+                    <label>Budget Range</label>
+                    <span class="index">04</span>
+                </div>
+                <select name="budget" required>
+                    <option value="">Select Budget...</option>
+                    <option value="$500-$1,000">$500 - $1,000</option>
+                    <option value="$1,000-$2,500">$1,000 - $2,500</option>
+                    <option value="$2,500-$5,000">$2,500 - $5,000</option>
+                    <option value="$5,000-$10,000">$5,000 - $10,000</option>
+                    <option value="$10,000+">$10,000+</option>
+                </select>
+            </div>
+
+            <!-- Price Display -->
+            <div class="form-block price-block">
+                <div class="price-amount">$50</div>
+                <div class="price-label">Deposit // Applied to Total</div>
+            </div>
+
+            <!-- Info Block -->
+            <div class="form-block info-block">
+                <div class="label-wrap">
+                    <label>Includes</label>
+                </div>
+                <div class="info-content">
+                    <span class="info-highlight">+ Professional Build</span><br>
+                    <span class="info-highlight">+ Responsive Design</span><br>
+                    <span class="info-highlight">+ 1-on-1 Consultation</span><br>
+                    <span class="info-highlight">+ Full Source Code</span><br>
+                    100% REFUNDABLE
+                </div>
+            </div>
+
+            <!-- Timeline Block -->
+            <div class="form-block span-2">
+                <div class="label-wrap">
+                    <label>Timeline</label>
+                    <span class="index">05</span>
+                </div>
+                <select name="timeline">
+                    <option value="">When do you need this?</option>
+                    <option value="ASAP">ASAP - Rush Priority</option>
+                    <option value="1-2 weeks">1-2 Weeks</option>
+                    <option value="2-4 weeks">2-4 Weeks</option>
+                    <option value="1+ month">1+ Month - Flexible</option>
+                </select>
+            </div>
+
+            <!-- Message Block -->
+            <div class="form-block span-3 high">
+                <div class="label-wrap">
+                    <label>Project Details</label>
+                    <span class="index">06</span>
+                </div>
+                <textarea name="message" placeholder="Describe your vision. What features do you need? Any specific functionality or integrations?"></textarea>
+            </div>
+
+            <!-- Submit Block -->
+            <button type="submit" class="form-block submit-block high">
+                <span>Submit Inquiry</span>
+            </button>
+
+            <!-- Hidden Design Data Fields -->
+            <input type="hidden" name="buildId" id="buildId">
+            <input type="hidden" name="assetId" id="assetId">
+            <input type="hidden" name="designPrompt" id="designPrompt">
+            <input type="hidden" name="styleName" id="styleName">
+            <input type="hidden" name="htmlContent" id="htmlContent">
+            <input type="hidden" name="sessionId" id="sessionId">
+        </form>
+    </div>
+
+    <!-- Success Overlay -->
+    <div class="success-overlay" id="successOverlay">
+        <div class="success-content">
+            <div class="success-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+            </div>
+            <h2 class="success-title">Inquiry Received</h2>
+            <p class="success-message">Our team has been notified and will reach out within 24 hours. Check your email for confirmation.</p>
+        </div>
+    </div>
+
+    <script>
+        // N8N Webhook URL
+        const N8N_WEBHOOK_URL = 'https://n8n.srv1167160.hstgr.cloud/webhook';
+
+        // Parse URL parameters for design data
+        function getUrlParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                buildId: params.get('buildId') || '',
+                assetId: params.get('assetId') || '',
+                prompt: params.get('prompt') || '',
+                styleName: params.get('style') || '',
+                sessionId: params.get('session') || ''
+            };
+        }
+
+        // Initialize form with URL parameters
+        function initForm() {
+            const data = getUrlParams();
+
+            document.getElementById('buildId').value = data.buildId;
+            document.getElementById('assetId').value = data.assetId;
+            document.getElementById('designPrompt').value = data.prompt;
+            document.getElementById('styleName').value = data.styleName;
+            document.getElementById('sessionId').value = data.sessionId;
+
+            // Try to get HTML content from sessionStorage
+            const storedHtml = sessionStorage.getItem('aisim_build_html');
+            if (storedHtml) {
+                document.getElementById('htmlContent').value = storedHtml;
+            }
+        }
+
+        // Mouse trail effect on form blocks
+        document.addEventListener('mousemove', (e) => {
+            const blocks = document.querySelectorAll('.form-block:not(.submit-block):not(.price-block):not(.info-block)');
+            const x = e.clientX;
+            const y = e.clientY;
+
+            blocks.forEach(block => {
+                const rect = block.getBoundingClientRect();
+                if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
+                    const localX = x - rect.left;
+                    const localY = y - rect.top;
+                    block.style.background = `radial-gradient(circle at ${localX}px ${localY}px, #1a2030 0%, #0f1419 60%)`;
+                }
+            });
+        });
+
+        // Add reveal animations
+        const blocks = document.querySelectorAll('.form-block');
+        blocks.forEach((block, index) => {
+            block.style.animationDelay = `${0.3 + (index * 0.08)}s`;
+            block.classList.add('reveal-item');
+        });
+
+        // Form submission
+        const form = document.getElementById('buildForm');
+        const submitBtn = document.querySelector('.submit-block span');
+        const successOverlay = document.getElementById('successOverlay');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Get form data
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Show loading state
+            submitBtn.innerText = 'TRANSMITTING...';
+            form.classList.add('loading');
+
+            try {
+                // Send to n8n webhook
+                const response = await fetch(`${N8N_WEBHOOK_URL}/aisim/contact-form`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        ...data,
+                        timestamp: new Date().toISOString(),
+                        userAgent: navigator.userAgent,
+                        referrer: document.referrer,
+                        pageUrl: window.location.href
+                    })
+                });
+
+                // Show success regardless (we don't want to block on backend issues)
+                submitBtn.innerText = 'SUCCESS //';
+                form.classList.remove('loading');
+
+                // Show success overlay
+                setTimeout(() => {
+                    successOverlay.classList.add('active');
+                }, 500);
+
+                // Clear stored HTML content
+                sessionStorage.removeItem('aisim_build_html');
+
+                // Redirect back to main app after delay
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 4000);
+
+            } catch (error) {
+                console.error('Form submission error:', error);
+                // Still show success to user (async processing)
+                submitBtn.innerText = 'RECEIVED //';
+                setTimeout(() => {
+                    successOverlay.classList.add('active');
+                }, 500);
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 4000);
+            }
+        });
+
+        // Initialize on load
+        initForm();
+    </script>
+</body>
+</html>
