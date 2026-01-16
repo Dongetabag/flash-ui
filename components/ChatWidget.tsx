@@ -229,12 +229,12 @@ When the user is ready to proceed, you can mention the checkout process.`;
         const params = new URLSearchParams();
         if (buildData?.buildId) params.set('buildId', buildData.buildId);
         if (assetId) params.set('assetId', assetId);
-        if (buildData?.prompt) params.set('prompt', buildData.prompt.substring(0, 200));
-        if (buildData?.styleName) params.set('style', buildData.styleName);
+        if (buildData?.prompt) params.set('prompt', encodeURIComponent(buildData.prompt.substring(0, 500)));
+        if (buildData?.styleName) params.set('style', encodeURIComponent(buildData.styleName));
         if (buildData?.sessionId) params.set('session', buildData.sessionId);
 
         // Redirect to contact form
-        window.location.href = `/contact.html?${params.toString()}`;
+        window.location.href = `./contact.html?${params.toString()}`;
     };
 
     const toggleWidget = () => {
