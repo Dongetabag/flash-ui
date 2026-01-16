@@ -308,7 +308,6 @@ Required JSON Output Format (stream ONE object per line):
 
       // Always redirect to contact form
       window.location.href = `/contact.html?${params.toString()}`;
-      }
   };
 
   const handleSendMessage = useCallback(async (manualPrompt?: string) => {
