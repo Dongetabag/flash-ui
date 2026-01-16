@@ -234,7 +234,7 @@ When the user is ready to proceed, you can mention the checkout process.`;
         if (buildData?.sessionId) params.set('session', buildData.sessionId);
 
         // Redirect to contact form
-        window.location.href = `./contact.html?${params.toString()}`;
+        window.location.href = `/contact.html?${params.toString()}`;
     };
 
     const toggleWidget = () => {

@@ -303,8 +303,19 @@ Required JSON Output Format (stream ONE object per line):
               sessionId: trackingAssetId
           });
 
-          // Set the active asset for the chat widget (will open checkout)
-          setActiveChatAssetId(trackingAssetId);
+          // Store HTML content in sessionStorage for the contact form
+          sessionStorage.setItem('aisim_build_html', artifact.html);
+
+          // Build URL parameters and redirect directly to contact page
+          const params = new URLSearchParams();
+          if (buildResult?.buildId) params.set('buildId', buildResult.buildId);
+          if (trackingAssetId) params.set('assetId', trackingAssetId);
+          if (currentSession.prompt) params.set('prompt', encodeURIComponent(currentSession.prompt.substring(0, 500)));
+          if (artifact.styleName) params.set('style', encodeURIComponent(artifact.styleName));
+          if (trackingAssetId) params.set('session', trackingAssetId);
+
+          // Redirect to contact form
+          window.location.href = `/contact.html?${params.toString()}`;
 
       } catch (error) {
           console.error('Error initiating build:', error);
