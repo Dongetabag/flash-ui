@@ -518,38 +518,6 @@ html, body {
     .overview-card p {
         font-size: 0.75rem !important;
     }
-
-    .hero-badge {
-        font-size: 0.65rem;
-        padding: 6px 14px;
-    }
-
-    /* 3D Logo Mobile */
-    .monolith-container {
-        margin: 10px 0;
-    }
-
-    .logo-3d {
-        width: 200px;
-        height: 70px;
-    }
-
-    .mountain-cutout {
-        font-size: 2.2rem;
-        letter-spacing: 4px;
-    }
-
-    .right, .left {
-        width: 35px;
-    }
-
-    .right {
-        transform: rotateY(90deg) translateZ(100px);
-    }
-
-    .left {
-        transform: rotateY(-90deg) translateZ(100px);
-    }
 }
 
 /* === Session Group & Grid === */
@@ -981,11 +949,22 @@ html, body {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Responsive Grid for smaller screens */
+/* ============================================
+   MOBILE & TABLET RESPONSIVE STYLES
+   ============================================ */
+
+/* Tablet (1024px and below) */
 @media (max-width: 1024px) {
     /* Hide creator credit when generation has started on mobile */
     .creator-credit.hide-on-mobile {
         display: none !important;
+    }
+
+    .creator-credit {
+        top: 16px;
+        right: 16px;
+        font-size: 0.75rem;
+        padding: 5px 10px;
     }
 
     .artifact-grid {
@@ -1008,20 +987,16 @@ html, body {
         pointer-events: none;
         height: 100vh;
     }
-    
+
     .artifact-card {
         min-height: 350px;
         flex-shrink: 0;
     }
 
-    .empty-content h1 {
-        font-size: 3.5rem;
-    }
-
     /* Adjust focused state for mobile to avoid cutoffs and center more cleanly */
     .stage-container.mode-focus .artifact-card.focused {
         width: 92vw;
-        height: 65vh; 
+        height: 65vh;
         top: 40%;
         left: 50%;
         transform: translate(-50%, -40%) !important; /* Force centering despite any parent shifts */
@@ -1032,12 +1007,12 @@ html, body {
         width: 100%;
         gap: 8px;
     }
-    
+
     .action-buttons {
         flex-wrap: wrap;
         justify-content: center;
     }
-    
+
     .floating-input-container {
         padding: 0 10px;
         bottom: 20px;
@@ -1050,6 +1025,523 @@ html, body {
     .sexy-preview iframe {
         width: 1000px;
         height: 640px;
-        transform: scale(0.16); 
+        transform: scale(0.16);
+    }
+
+    /* Hero content adjustments */
+    .empty-content {
+        margin-top: 20px;
+        gap: 16px;
+        padding: 0 16px;
+    }
+
+    .hero-tagline {
+        font-size: clamp(1.3rem, 5vw, 2rem) !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.95rem !important;
+        padding: 0 10px;
+    }
+
+    /* Overview section tablet */
+    .overview-section {
+        margin-top: 40px;
+        padding: 0 16px;
+    }
+
+    .overview-cta {
+        margin-top: 24px;
+        padding: 10px 20px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Mobile Large (768px and below) */
+@media (max-width: 768px) {
+    .empty-state {
+        padding: 40px 16px 120px;
+    }
+
+    .empty-content {
+        margin-top: 10px;
+        gap: 14px;
+    }
+
+    /* 3D Logo Tablet */
+    .monolith-container {
+        margin: 15px 0;
+    }
+
+    .logo-3d {
+        width: 240px;
+        height: 85px;
+    }
+
+    .mountain-cutout {
+        font-size: 2.8rem;
+        letter-spacing: 6px;
+        -webkit-text-stroke: 1.5px var(--color-primary);
+    }
+
+    .right, .left {
+        width: 42px;
+    }
+
+    .right {
+        transform: rotateY(90deg) translateZ(120px);
+    }
+
+    .left {
+        transform: rotateY(-90deg) translateZ(120px);
+    }
+
+    .hero-badge {
+        font-size: 0.6rem;
+        padding: 6px 12px;
+        gap: 8px;
+        letter-spacing: 0.12em;
+    }
+
+    .badge-pulse {
+        width: 6px;
+        height: 6px;
+    }
+
+    .hero-tagline {
+        font-size: clamp(1.1rem, 4.5vw, 1.6rem) !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.9rem !important;
+        line-height: 1.6 !important;
+    }
+
+    .surprise-button {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+
+    .hero-hint {
+        font-size: 0.75rem !important;
+    }
+
+    /* Navigation handles */
+    .nav-handle {
+        padding: 12px;
+    }
+
+    .nav-handle.left {
+        left: 5px;
+    }
+
+    .nav-handle.right {
+        right: 5px;
+    }
+
+    /* Drawer full width on mobile */
+    .drawer-content {
+        max-width: 100%;
+    }
+
+    .drawer-header {
+        padding: 16px;
+    }
+
+    .drawer-body {
+        padding: 16px;
+    }
+
+    /* Action buttons smaller */
+    .action-buttons button {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+        gap: 6px;
+    }
+
+    .active-prompt-label {
+        font-size: 0.8rem;
+        padding: 5px 10px;
+    }
+}
+
+/* Mobile Small (480px and below) */
+@media (max-width: 480px) {
+    html, body {
+        font-size: 14px;
+    }
+
+    .empty-state {
+        padding: 30px 12px 110px;
+    }
+
+    .empty-content {
+        margin-top: 5px;
+        gap: 12px;
+    }
+
+    /* 3D Logo Small Mobile */
+    .monolith-container {
+        margin: 8px 0;
+        transform-style: preserve-3d;
+    }
+
+    .logo-3d {
+        width: 180px;
+        height: 65px;
+        transform: rotateX(15deg) rotateY(25deg);
+    }
+
+    .mountain-cutout {
+        font-size: 2rem;
+        letter-spacing: 3px;
+        -webkit-text-stroke: 1px var(--color-primary);
+    }
+
+    .slab {
+        border-width: 1px;
+    }
+
+    .front {
+        transform: translateZ(18px);
+    }
+
+    .back {
+        transform: translateZ(-18px) rotateY(180deg);
+    }
+
+    .right, .left {
+        width: 30px;
+    }
+
+    .right {
+        transform: rotateY(90deg) translateZ(90px);
+    }
+
+    .left {
+        transform: rotateY(-90deg) translateZ(90px);
+    }
+
+    .top {
+        transform: rotateX(90deg) translateZ(32px);
+        height: 36px;
+    }
+
+    .bottom {
+        transform: rotateX(-90deg) translateZ(32px);
+        height: 36px;
+    }
+
+    .hero-badge {
+        font-size: 0.55rem;
+        padding: 5px 10px;
+        gap: 6px;
+        letter-spacing: 0.1em;
+    }
+
+    .badge-pulse {
+        width: 5px;
+        height: 5px;
+    }
+
+    .hero-tagline {
+        font-size: 1.1rem !important;
+        letter-spacing: -0.01em;
+    }
+
+    .hero-subtitle {
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
+        padding: 0 5px;
+    }
+
+    .surprise-button {
+        padding: 10px 20px;
+        font-size: 0.9rem;
+        border-radius: 10px;
+    }
+
+    .hero-hint {
+        font-size: 0.7rem !important;
+        margin-top: -4px !important;
+    }
+
+    /* Overview Section Small Mobile */
+    .overview-section {
+        margin-top: 30px;
+        padding: 0 8px;
+    }
+
+    .overview-grid {
+        gap: 10px;
+    }
+
+    .overview-card {
+        padding: 16px 12px;
+        gap: 12px;
+        border-radius: 12px;
+    }
+
+    .overview-card .overview-icon {
+        width: 36px;
+        height: 36px;
+    }
+
+    .overview-card h3 {
+        font-size: 0.85rem;
+    }
+
+    .overview-card p {
+        font-size: 0.7rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .overview-cta {
+        margin-top: 20px;
+        padding: 10px 18px;
+        font-size: 0.8rem;
+    }
+
+    /* Floating Input Small Mobile */
+    .floating-input-container {
+        bottom: 15px;
+        padding: 0 8px;
+    }
+
+    .input-wrapper {
+        padding: 6px 6px 6px 16px;
+        gap: 8px;
+        border-radius: 50px;
+    }
+
+    .input-wrapper input {
+        font-size: 0.9rem;
+    }
+
+    .send-button {
+        width: 36px;
+        height: 36px;
+    }
+
+    .animated-placeholder {
+        left: 16px;
+        font-size: 0.85rem;
+    }
+
+    .tab-hint {
+        display: none;
+    }
+
+    /* Action Bar Small Mobile */
+    .action-bar {
+        bottom: 75px;
+        gap: 6px;
+    }
+
+    .action-buttons {
+        gap: 8px;
+    }
+
+    .action-buttons button {
+        padding: 5px 10px;
+        font-size: 0.75rem;
+        gap: 4px;
+    }
+
+    .action-buttons button svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .active-prompt-label {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+        max-width: 90vw;
+    }
+
+    /* Artifact Cards Small Mobile */
+    .artifact-card {
+        min-height: 280px;
+    }
+
+    .artifact-header {
+        padding: 8px 12px;
+        font-size: 0.7rem;
+    }
+
+    .stage-container.mode-focus .artifact-card.focused {
+        width: 95vw;
+        height: 60vh;
+        top: 38%;
+    }
+
+    /* Creator Credit Small Mobile */
+    .creator-credit {
+        top: 12px;
+        right: 12px;
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+}
+
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+    .logo-3d {
+        width: 160px;
+        height: 55px;
+    }
+
+    .mountain-cutout {
+        font-size: 1.7rem;
+        letter-spacing: 2px;
+    }
+
+    .right, .left {
+        width: 25px;
+    }
+
+    .right {
+        transform: rotateY(90deg) translateZ(80px);
+    }
+
+    .left {
+        transform: rotateY(-90deg) translateZ(80px);
+    }
+
+    .hero-tagline {
+        font-size: 1rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.8rem !important;
+    }
+
+    .surprise-button {
+        padding: 9px 18px;
+        font-size: 0.85rem;
+    }
+
+    .overview-card {
+        padding: 14px 10px;
+        gap: 10px;
+    }
+
+    .overview-card .overview-icon {
+        width: 32px;
+        height: 32px;
+    }
+
+    .overview-card h3 {
+        font-size: 0.8rem;
+    }
+
+    .overview-card p {
+        font-size: 0.65rem !important;
+    }
+}
+
+/* Landscape Mobile Orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+    .empty-state {
+        padding: 20px 20px 100px;
+    }
+
+    .empty-content {
+        margin-top: 0;
+        gap: 10px;
+    }
+
+    .monolith-container {
+        margin: 5px 0;
+    }
+
+    .logo-3d {
+        width: 200px;
+        height: 60px;
+    }
+
+    .mountain-cutout {
+        font-size: 2rem;
+    }
+
+    .hero-tagline {
+        font-size: 1.2rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 0.85rem !important;
+    }
+
+    .overview-section {
+        margin-top: 20px;
+    }
+
+    .overview-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .floating-input-container {
+        bottom: 10px;
+    }
+}
+
+/* Safe area insets for notched devices */
+@supports (padding: max(0px)) {
+    .empty-state {
+        padding-left: max(12px, env(safe-area-inset-left));
+        padding-right: max(12px, env(safe-area-inset-right));
+        padding-bottom: max(100px, calc(env(safe-area-inset-bottom) + 80px));
+    }
+
+    .floating-input-container {
+        bottom: max(15px, env(safe-area-inset-bottom));
+        padding-left: max(8px, env(safe-area-inset-left));
+        padding-right: max(8px, env(safe-area-inset-right));
+    }
+}
+
+/* Touch-friendly tap targets */
+@media (pointer: coarse) {
+    .send-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .action-buttons button {
+        min-height: 40px;
+    }
+
+    .overview-card {
+        min-height: 60px;
+    }
+
+    .nav-handle {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .close-button {
+        min-width: 44px;
+        min-height: 44px;
+    }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+    .monolith-container {
+        animation: dramaticEntrance 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0); }
+    }
+
+    .badge-pulse {
+        animation: none;
+    }
+
+    * {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
     }
 }
