@@ -105,14 +105,36 @@ export default async function handler(req, res) {
             });
         }
 
-        // Add HTML preview note if available
+        // Add HTML code preview if available
         if (htmlContent) {
+            // Slack has a 3000 char limit per text block, so truncate code preview
+            const maxCodeLength = 2500;
+            const codePreview = htmlContent.length > maxCodeLength
+                ? htmlContent.substring(0, maxCodeLength) + '\n... [truncated]'
+                : htmlContent;
+
+            slackMessage.blocks.push({
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: `*📦 Build Code Preview:*`
+                }
+            });
+
+            slackMessage.blocks.push({
+                type: "section",
+                text: {
+                    type: "mrkdwn",
+                    text: `\`\`\`${codePreview}\`\`\``
+                }
+            });
+
             slackMessage.blocks.push({
                 type: "context",
                 elements: [
                     {
                         type: "mrkdwn",
-                        text: `✅ HTML content included (${htmlContent.length} characters)`
+                        text: `📊 Total code: ${htmlContent.length} characters`
                     }
                 ]
             });
