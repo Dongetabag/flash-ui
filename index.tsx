@@ -478,12 +478,75 @@ Return ONLY RAW HTML. No markdown fences.
             <div className={`stage-container ${focusedArtifactIndex !== null ? 'mode-focus' : 'mode-split'}`}>
                  <div className={`empty-state ${hasStarted ? 'fade-out' : ''}`}>
                      <div className="empty-content">
+                         <div className="hero-badge">
+                             <span className="badge-pulse"></span>
+                             THE SYSTEM THAT COMPOUNDS
+                         </div>
                          <h1>AIsim</h1>
-                         <p>AI-Powered Creative Tools for Creators</p>
-                         <p style={{fontSize: '0.9rem', opacity: 0.7, marginTop: '0.5rem'}}>Generate stunning UI components instantly with AI</p>
+                         <p className="hero-tagline">Building The Future Internet</p>
+                         <p className="hero-subtitle">Full-scale automation infrastructure for every industry.<br/>Smart systems that solve what manual processes cannot.</p>
                          <button className="surprise-button" onClick={handleSurpriseMe} disabled={isLoading}>
-                             <SparklesIcon /> Surprise Me
+                             <SparklesIcon /> Try Flash UI
                          </button>
+                         <p className="hero-hint">Type any UI idea and watch AI build it instantly</p>
+                     </div>
+
+                     {/* Quick Overview Section */}
+                     <div className="overview-section">
+                         <div className="overview-grid">
+                             <div className="overview-card">
+                                 <div className="overview-icon">
+                                     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                         <path d="M8 12h32M8 24h24M8 36h28" />
+                                         <circle cx="40" cy="24" r="6" fill="rgba(255,159,10,0.2)" stroke="#ff9f0a" />
+                                     </svg>
+                                 </div>
+                                 <h3>Data Flow Systems</h3>
+                                 <p>Smart pipelines that route, transform, and contextualize information automatically.</p>
+                             </div>
+                             <div className="overview-card">
+                                 <div className="overview-icon">
+                                     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                         <circle cx="24" cy="24" r="18" />
+                                         <circle cx="24" cy="24" r="8" stroke="#ff9f0a" />
+                                         <circle cx="24" cy="24" r="3" fill="#ff9f0a" />
+                                         <path d="M24 6v6M24 36v6M6 24h6M36 24h6" stroke="#ff9f0a" strokeDasharray="2 2" />
+                                     </svg>
+                                 </div>
+                                 <h3>AI Agents</h3>
+                                 <p>Autonomous agents that handle customer support, sales outreach, and decision-making at scale.</p>
+                             </div>
+                             <div className="overview-card">
+                                 <div className="overview-icon">
+                                     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                         <rect x="6" y="6" width="14" height="14" rx="3" />
+                                         <rect x="28" y="6" width="14" height="14" rx="3" stroke="#ff9f0a" />
+                                         <rect x="6" y="28" width="14" height="14" rx="3" stroke="#ff9f0a" />
+                                         <rect x="28" y="28" width="14" height="14" rx="3" />
+                                         <path d="M20 13h8M13 20v8M35 20v8M20 35h8" strokeDasharray="3 2" />
+                                     </svg>
+                                 </div>
+                                 <h3>Automation Engine</h3>
+                                 <p>Eliminate repetitive tasks and reduce cognitive load. Systems that compound your productivity.</p>
+                             </div>
+                             <div className="overview-card">
+                                 <div className="overview-icon">
+                                     <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                         <rect x="4" y="8" width="40" height="32" rx="3" />
+                                         <path d="M4 16h40" />
+                                         <circle cx="10" cy="12" r="1.5" fill="#ff9f0a" />
+                                         <circle cx="16" cy="12" r="1.5" fill="currentColor" />
+                                         <path d="M12 24h12M12 30h8" stroke="#ff9f0a" />
+                                         <rect x="28" y="22" width="12" height="12" rx="2" fill="rgba(255,159,10,0.15)" stroke="#ff9f0a" />
+                                     </svg>
+                                 </div>
+                                 <h3>Digital Infrastructure</h3>
+                                 <p>Full-stack platforms built for scale. Real-time data, intelligent backends, and interfaces that convert.</p>
+                             </div>
+                         </div>
+                         <a href="https://portfolio.aisim.app" className="overview-cta">
+                             Explore Our Work <span>→</span>
+                         </a>
                      </div>
                  </div>
 
