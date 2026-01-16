@@ -994,7 +994,7 @@ html, body {
         position: relative;
         min-height: 100vh;
         height: auto;
-        padding: 140px 16px 60px;
+        padding: 160px 16px 80px;
         overflow-y: auto;
         overflow-x: hidden;
         display: flex;
@@ -1123,7 +1123,7 @@ html, body {
 /* Mobile Large (768px and below) */
 @media (max-width: 768px) {
     .empty-state {
-        padding: 120px 16px 100px;
+        padding: 140px 16px 120px;
     }
 
     .empty-content {
@@ -1133,7 +1133,7 @@ html, body {
 
     /* 3D Logo Tablet - lower it so badge is visible */
     .monolith-container {
-        margin: 25px 0 15px;
+        margin: 35px 0 20px;
     }
 
     .logo-3d {
@@ -1233,7 +1233,7 @@ html, body {
     }
 
     .empty-state {
-        padding: 100px 12px 110px;
+        padding: 115px 12px 130px;
     }
 
     .empty-content {
@@ -1243,7 +1243,7 @@ html, body {
 
     /* 3D Logo Small Mobile - lower it so badge is visible */
     .monolith-container {
-        margin: 20px 0 10px;
+        margin: 30px 0 15px;
         transform-style: preserve-3d;
     }
 
